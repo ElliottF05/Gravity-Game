@@ -9,6 +9,10 @@ screenHeight = 0
 trailDuration = 0
 trailUpdatePerFrame = 10
 
+@staticmethod  # converts coords with origin at center (physics based) to origin at top left
+def toScreenCoords(coords):
+    return (int(screenWidth / 2 + coords[0]), int(screenHeight / 2 - coords[1]))
+
 class GravitationalBody:
 
     bodies = []
@@ -69,19 +73,15 @@ class GravitationalBody:
 
     def render(self, surface, zoom, cameraX, cameraY):
         for pos in self.trail:
-            pygame.Surface.set_at(surface, self.toScreenCoords(pos), "white")
+            pygame.Surface.set_at(surface, toScreenCoords(pos), "white")
         relativeX = (self.xpos - cameraX) * zoom  # based on zoom and camera pos
         relativeY = (self.ypos - cameraY) * zoom  # based on zoom and camera pos
-        pygame.draw.circle(surface, "green", self.toScreenCoords((relativeX, relativeY)), self.radius)
+        pygame.draw.circle(surface, "green", toScreenCoords((relativeX, relativeY)), self.radius)
 
     @classmethod
     def renderAll(cls, surface, zoom, cameraX, cameraY):
         for body in cls.bodies:
             body.render(surface, zoom, cameraX, cameraY)
-
-    @staticmethod  # converts coords with origin at center (physics based) to origin at top left
-    def toScreenCoords(coords):
-        return (int(screenWidth / 2 + coords[0]), int(screenHeight / 2 - coords[1]))
 
     @classmethod
     def updateTrail(cls):

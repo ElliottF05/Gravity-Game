@@ -33,6 +33,7 @@ gravitationalbody.screenHeight = screenHeight
 
 gravitationalbody.trailDuration = 1
 gravitationalbody.trailUpdatePerFrame = 10
+space_color = (20, 20, 23)
 
 
 # Pygame setup
@@ -67,7 +68,7 @@ while running:
 
     # Rendering all visuals
 
-    screen.fill("black")  # filling screen with color to wipe away previous frame
+    screen.fill(space_color)  # filling screen with color to wipe away previous frame
 
     GravitationalBody.renderAll(screen, 1, 0, 0)
 
