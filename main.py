@@ -6,13 +6,13 @@ import pygame
 # Create gravitational bodies
 
 bodies = GravitationalBody.bodies
-GravitationalBody(1, 1, -100, 0, 0, 15)
-GravitationalBody(1, 1, 100, 10, 0, -15)
+GravitationalBody(0, 0, 0, 0, 5, 20)
+GravitationalBody(-100, 0, 0, 50, 1)
 
 
 # Create player
 
-player = GravitationalBody(1, 1, 0, 50, 0, 1)
+player = GravitationalBody(100, 0, 0, -50, 1)
 
 
 # Physics variables
@@ -27,6 +27,12 @@ fps = 60
 
 gravitationalbody.screenWidth = screenWidth
 gravitationalbody.screenHeight = screenHeight
+
+
+# Display variables
+
+gravitationalbody.trailDuration = 1
+gravitationalbody.trailUpdatePerFrame = 10
 
 
 # Pygame setup

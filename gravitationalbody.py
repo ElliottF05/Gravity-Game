@@ -1,21 +1,26 @@
 import math
+from collections import deque
+
 import pygame
 
 G = 100000
 screenWidth = 0
 screenHeight = 0
+trailDuration = 0
+trailUpdatePerFrame = 10
 
 class GravitationalBody:
 
     bodies = []
 
-    def __init__(self, mass, radius, xpos, ypos, xvel, yvel):
-        self.mass = mass
-        self.radius = radius
+    def __init__(self, xpos, ypos, xvel, yvel, mass, radius=10):
         self.xpos = xpos
         self.ypos = ypos
         self.xvel = xvel
         self.yvel = yvel
+        self.mass = mass
+        self.radius = radius
+        self.trail = deque()
         self.image = None
         self.bodies.append(self)
 
@@ -56,20 +61,33 @@ class GravitationalBody:
                     cls.bodies[i].gravityWith(cls.bodies[j], 1 / (fps * subUpdates))
             for body in cls.bodies:
                 body.updatePos(1 / (fps * subUpdates))
+            if k % (subUpdates / trailUpdatePerFrame) == 0:
+                cls.updateTrail()
 
 
     # VISUALS
 
     def render(self, surface, zoom, cameraX, cameraY):
-        relativeX = (self.xpos - cameraX) * zoom
-        relativeY = (self.ypos - cameraY) * zoom
-        pygame.draw.circle(surface, "green", self.toScreenCoords(relativeX, relativeY), 10)
+        for pos in self.trail:
+            pygame.Surface.set_at(surface, self.toScreenCoords(pos), "white")
+        relativeX = (self.xpos - cameraX) * zoom  # based on zoom and camera pos
+        relativeY = (self.ypos - cameraY) * zoom  # based on zoom and camera pos
+        pygame.draw.circle(surface, "green", self.toScreenCoords((relativeX, relativeY)), self.radius)
 
     @classmethod
     def renderAll(cls, surface, zoom, cameraX, cameraY):
         for body in cls.bodies:
             body.render(surface, zoom, cameraX, cameraY)
 
-    @staticmethod
-    def toScreenCoords(x, y):
-        return (screenWidth / 2 + x, screenHeight / 2 - y)
+    @staticmethod  # converts coords with origin at center (physics based) to origin at top left
+    def toScreenCoords(coords):
+        return (int(screenWidth / 2 + coords[0]), int(screenHeight / 2 - coords[1]))
+
+    @classmethod
+    def updateTrail(cls):
+        for body in cls.bodies:
+            body.trail.appendleft((body.xpos, body.ypos))
+            if len(body.trail) > 60 * trailDuration * trailUpdatePerFrame:
+                pass
+                body.trail.pop()
+
