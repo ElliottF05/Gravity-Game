@@ -33,7 +33,7 @@ gravitationalbody.screenHeight = screenHeight
 gravitationalbody.trailDuration = 1
 gravitationalbody.trailUpdatePerFrame = 10
 
-cameraModeList = deque(["ship", "centerOfMass", "showAll"])
+cameraModeList = deque(["ship", "centerOfMass"])
 cameraMode = deque[0]
 
 cameraX = 0
@@ -89,8 +89,6 @@ while running:
         cameraX, cameraY = GravitationalBody.getCenterOfMass()
     if (cameraMode == "ship"):
         cameraX, cameraY = ship.xpos, ship.ypos
-    if (cameraMode == "showAll"):
-        cameraX, cameraY, zoom = GravitationalBody.getShowAllCameraPos()
 
 
     # Rendering all visuals

@@ -105,22 +105,4 @@ class GravitationalBody:
             totalMass += body.mass
         return xSum / totalMass, ySum / totalMass
 
-    @classmethod
-    def getShowAllCameraPos(cls):
-        xmin = cls.bodies[0].xpos
-        xmax = cls.bodies[0].xpos
-        ymin = cls.bodies[0].ypos
-        ymax = cls.bodies[0].ypos
-
-        for body in cls.bodies:
-            xmin = min(xmin, body.xpos)
-            xmax = max(xmax, body.xpos)
-            ymin = min(ymin, body.ypos)
-            ymax = max(ymax, body.ypos)
-
-        xRange = xmax - xmin
-        yRange = ymax - ymin
-
-        return (xmin + xmax) / 2, (ymin + ymax) / 2, min(screenWidth / (2 * xRange), screenHeight / (2 * yRange))
-
 
