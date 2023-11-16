@@ -3,15 +3,19 @@ from collections import deque
 
 import pygame
 
+# Physics Constants
 G = 100000
+
+# Display Constants
 screenWidth = 0
 screenHeight = 0
 trailDuration = 0
 trailUpdatePerFrame = 10
 
-@staticmethod  # converts coords with origin at center (physics based) to origin at top left
-def toScreenCoords(coords):
-    return (int(screenWidth / 2 + coords[0]), int(screenHeight / 2 - coords[1]))
+def toScreenCoords(coords, cameraX, cameraY, zoom): # converts coords with origin at center (physics based) to origin at top left
+    x = coords[0]
+    y = coords[1]
+    return (int(screenWidth / 2 + (x - cameraX) * zoom)), int(screenHeight / 2 - (y - cameraY) * zoom)
 
 class GravitationalBody:
 
@@ -32,6 +36,7 @@ class GravitationalBody:
     # PHYSICS
 
     def vectorTo(self, other):
+        x2 = other.xpos
         return other.xpos - self.xpos, other.ypos - self.ypos
 
     def distanceTo(self, other):
@@ -73,10 +78,8 @@ class GravitationalBody:
 
     def render(self, surface, zoom, cameraX, cameraY):
         for pos in self.trail:
-            pygame.Surface.set_at(surface, toScreenCoords(pos), "white")
-        relativeX = (self.xpos - cameraX) * zoom  # based on zoom and camera pos
-        relativeY = (self.ypos - cameraY) * zoom  # based on zoom and camera pos
-        pygame.draw.circle(surface, "green", toScreenCoords((relativeX, relativeY)), self.radius)
+            pygame.Surface.set_at(surface, toScreenCoords(pos, cameraX, cameraY, zoom), "white")
+        pygame.draw.circle(surface, "green", toScreenCoords((self.xpos, self.ypos), cameraX, cameraY, zoom), self.radius)
 
     @classmethod
     def renderAll(cls, surface, zoom, cameraX, cameraY):
@@ -90,4 +93,39 @@ class GravitationalBody:
             if len(body.trail) > 60 * trailDuration * trailUpdatePerFrame:
                 pass
                 body.trail.pop()
+
+    @classmethod
+    def getCenterOfMass(cls):
+        xSum = 0
+        ySum = 0
+        totalMass = 0
+        for body in cls.bodies:
+            xSum += body.xpos
+            ySum += body.ypos
+            totalMass += body.mass
+        return xSum / totalMass, ySum / totalMass
+
+    @classmethod
+    def getShowAllCameraPos(cls):
+        xmin = cls.bodies[0].xpos
+        xmax = cls.bodies[0].xpos
+        ymin = cls.bodies[0].ypos
+        ymax = cls.bodies[0].ypos
+
+        for body in cls.bodies:
+            xmin = min(xmin, body.xpos)
+            xmax = max(xmax, body.xpos)
+            ymin = min(ymin, body.ypos)
+            ymax = max(ymax, body.ypos)
+
+        xRange = xmax - xmin
+        yRange = ymax - ymin
+
+        xmax += xRange * 0.1
+        xmin -= xRange * 0.1
+        ymax += yRange * 0.1
+        ymin -= yRange * 0.1
+
+        return (xmin + xmax) / 2, (ymin + ymax) / 2
+
 
