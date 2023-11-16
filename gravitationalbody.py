@@ -79,7 +79,7 @@ class GravitationalBody:
     def render(self, surface, zoom, cameraX, cameraY):
         for pos in self.trail:
             pygame.Surface.set_at(surface, toScreenCoords(pos, cameraX, cameraY, zoom), "white")
-        pygame.draw.circle(surface, "green", toScreenCoords((self.xpos, self.ypos), cameraX, cameraY, zoom), self.radius)
+        pygame.draw.circle(surface, "green", toScreenCoords((self.xpos, self.ypos), cameraX, cameraY, zoom), self.radius * zoom)
 
     @classmethod
     def renderAll(cls, surface, zoom, cameraX, cameraY):

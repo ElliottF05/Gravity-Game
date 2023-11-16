@@ -40,6 +40,8 @@ cameraX = 0
 cameraY = 0
 zoom = 1
 
+zoomRate = 1
+
 
 
 # Colors
@@ -74,16 +76,28 @@ while running:
             if event.key == pygame.K_RIGHT:
                 cameraModeList.rotate(-1)
                 cameraMode = cameraModeList[0]
-                print(cameraMode)
             if event.key == pygame.K_LEFT:
                 cameraModeList.rotate(1)
                 cameraMode = cameraModeList[0]
+            if event.key == pygame.K_UP:
+                zoomRate = 1.01
+            if event.key == pygame.K_DOWN:
+                zoomRate = 0.99
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                zoomRate = 1
 
 
 
-    # Physics Updates / Game Updates
+    # Physics Updates
 
     GravitationalBody.calculateMotion(fps, subUpdates)
+
+
+    # Camera Updates
+
+    zoom *= zoomRate
 
     if (cameraMode == "centerOfMass"):
         cameraX, cameraY = GravitationalBody.getCenterOfMass()
