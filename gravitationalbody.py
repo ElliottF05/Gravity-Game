@@ -121,11 +121,6 @@ class GravitationalBody:
         xRange = xmax - xmin
         yRange = ymax - ymin
 
-        xmax += xRange * 0.1
-        xmin -= xRange * 0.1
-        ymax += yRange * 0.1
-        ymin -= yRange * 0.1
-
-        return (xmin + xmax) / 2, (ymin + ymax) / 2
+        return (xmin + xmax) / 2, (ymin + ymax) / 2, min(screenWidth / (2 * xRange), screenHeight / (2 * yRange))
 
 

@@ -90,7 +90,7 @@ while running:
     if (cameraMode == "ship"):
         cameraX, cameraY = ship.xpos, ship.ypos
     if (cameraMode == "showAll"):
-        cameraX, cameraY = GravitationalBody.getShowAllCameraPos()
+        cameraX, cameraY, zoom = GravitationalBody.getShowAllCameraPos()
 
 
     # Rendering all visuals
