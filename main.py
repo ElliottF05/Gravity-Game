@@ -115,7 +115,7 @@ while running:
     if (cameraMode == "centerOfMass"):
         cameraX, cameraY = GravitationalBody.getCenterOfMass()
     if (cameraMode == "ship"):
-        cameraX, cameraY = ship.futureTrail[0][0], ship.futureTrail[0][1]
+        cameraX, cameraY = ship.getCurrentPos()[0], ship.getCurrentPos()[1]
 
     gravitationalbody.updateCamera(cameraX, cameraY, zoom)
 

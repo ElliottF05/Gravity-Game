@@ -145,7 +145,7 @@ class GravitationalBody:
         ySum = 0
         totalMass = 0
         for body in cls.bodies:
-            xSum += body.getCurrentPos[0]
-            ySum += body.getCurrentPos[1]
+            xSum += body.getCurrentPos()[0]
+            ySum += body.getCurrentPos()[1]
             totalMass += body.mass
         return xSum / totalMass, ySum / totalMass
