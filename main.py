@@ -1,17 +1,20 @@
-import gravitationalbody
-from gravitationalbody import *
+import gravitationalbody, vectors
+
+from gravitationalbody import GravitationalBody
+
 import pygame
+from collections import deque
 
 # Create gravitational bodies
 
 bodies = GravitationalBody.bodies
-GravitationalBody(0, 0, 0, 0, 5, 20)
-GravitationalBody(-150, 0, 0, 50, 1)
+GravitationalBody((0, 0), (0, 0), 50, 20)
+GravitationalBody((-300, 0), (0, 60), 0.1)
 
 
 # Create player
 
-ship = GravitationalBody(100, 0, 0, -70, 1)
+ship = GravitationalBody((100, 0),  (0, -150), 0.1)
 
 
 # Physics variables
@@ -137,4 +140,6 @@ while running:
 pygame.quit()
 
 
+
 # USER INPUT FUNCTIONS
+
