@@ -14,12 +14,11 @@ Not currently near minimum viable product
 - Some procedurally generated levels
 
 ## Next Steps
-1. Keep working on camera controls (zoom)
-2. Look up best practices for sharing variables across modules and implement this!!!
-3. Add basic ship controls
-   1. Also must create trail showing future path for a given maneuver
-4. Add sprites and make it good looking
-5. Finalize
+1. Add basic ship controls
+   2. Prograde and retrograde, normal in/out
+2. Add sprites and make it good looking
+3. Finalize
 
 ## Potential Changes
 - Maybe make trail its own class/object
+- Look up best practices for sharing variables across modules and implement this!!!

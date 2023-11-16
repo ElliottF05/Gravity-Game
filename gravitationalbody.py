@@ -10,9 +10,22 @@ G = 100000
 screenWidth = 0
 screenHeight = 0
 trailDuration = 0
-trailUpdatePerFrame = 10
+futureTrailDuration = 0
+trailUpdatesPerFrame = 10
 
-def toScreenCoords(coords, cameraX, cameraY, zoom): # converts coords with origin at center (physics based) to origin at top left
+# Camera values
+cameraX = 0
+cameraY = 0
+zoom = 1
+
+def updateCamera(newCameraX, newCameraY, newZoom):
+    global cameraX, cameraY, zoom
+    cameraX = newCameraX
+    cameraY = newCameraY
+    zoom = newZoom
+
+
+def toScreenCoords(coords): # converts coords with origin at center (physics based) to origin at top left
     x = coords[0]
     y = coords[1]
     return (int(screenWidth / 2 + (x - cameraX) * zoom)), int(screenHeight / 2 - (y - cameraY) * zoom)
@@ -29,6 +42,7 @@ class GravitationalBody:
         self.mass = mass
         self.radius = radius
         self.trail = deque()
+        self.futureTrail = deque()
         self.image = None
         self.bodies.append(self)
 
@@ -70,29 +84,46 @@ class GravitationalBody:
                     cls.bodies[i].gravityWith(cls.bodies[j], 1 / (fps * subUpdates))
             for body in cls.bodies:
                 body.updatePos(1 / (fps * subUpdates))
-            if k % (subUpdates / trailUpdatePerFrame) == 0:
-                cls.updateTrail()
+            if k % (subUpdates / trailUpdatesPerFrame) == 0:
+                cls.updateTrails()
 
 
     # VISUALS
 
-    def render(self, surface, zoom, cameraX, cameraY):
+    def render(self, surface):
+        pygame.draw.circle(surface, "green", toScreenCoords(self.futureTrail[0]), self.radius * zoom)
+
+    def renderTrail(self, surface):
         for pos in self.trail:
-            pygame.Surface.set_at(surface, toScreenCoords(pos, cameraX, cameraY, zoom), "white")
-        pygame.draw.circle(surface, "green", toScreenCoords((self.xpos, self.ypos), cameraX, cameraY, zoom), self.radius * zoom)
+            pygame.Surface.set_at(surface, toScreenCoords(pos), "white")
+
+    def renderFutureTrail(self, surface):
+        for pos in self.futureTrail:
+            pygame.Surface.set_at(surface, toScreenCoords(pos), (40, 40, 40))
 
     @classmethod
-    def renderAll(cls, surface, zoom, cameraX, cameraY):
+    def renderBodies(cls, surface):
         for body in cls.bodies:
-            body.render(surface, zoom, cameraX, cameraY)
+            body.render(surface)
 
     @classmethod
-    def updateTrail(cls):
+    def renderTrails(cls, surface):
         for body in cls.bodies:
-            body.trail.appendleft((body.xpos, body.ypos))
-            if len(body.trail) > 60 * trailDuration * trailUpdatePerFrame:
-                pass
-                body.trail.pop()
+            body.renderTrail(surface)
+
+    @classmethod
+    def renderFutureTrails(cls, surface):
+        for body in cls.bodies:
+            body.renderFutureTrail(surface)
+
+    @classmethod
+    def updateTrails(cls):
+        for body in cls.bodies:
+            body.futureTrail.append((body.xpos, body.ypos))
+            if len(body.futureTrail) > 60 * futureTrailDuration * trailUpdatesPerFrame:
+                body.trail.append(body.futureTrail.popleft())
+            if len(body.trail) > 60 * trailDuration * trailUpdatesPerFrame:
+                body.trail.popleft()
 
     @classmethod
     def getCenterOfMass(cls):
@@ -100,8 +131,8 @@ class GravitationalBody:
         ySum = 0
         totalMass = 0
         for body in cls.bodies:
-            xSum += body.xpos
-            ySum += body.ypos
+            xSum += body.futureTrail[0][0]
+            ySum += body.futureTrail[0][1]
             totalMass += body.mass
         return xSum / totalMass, ySum / totalMass
 
