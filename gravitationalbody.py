@@ -17,21 +17,17 @@ fps = 0
 subUpdates = 0
 
 # Camera values
-cameraX = 0
-cameraY = 0
+cameraPos = vec(0, 0)
 zoom = 1
 
-def updateCamera(newCameraX, newCameraY, newZoom):
-    global cameraX, cameraY, zoom
-    cameraX = newCameraX
-    cameraY = newCameraY
+def updateCamera(newCameraPos, newZoom):
+    global cameraPos, zoom
+    cameraPos = newCameraPos
     zoom = newZoom
 
 
 def toScreenCoords(coords): # converts coords with origin at center (physics based) to origin at top left
-    x = coords[0]
-    y = coords[1]
-    return (int(screenWidth / 2 + (x - cameraX) * zoom)), int(screenHeight / 2 - (y - cameraY) * zoom)
+    return (int(screenWidth / 2 + (coords.x - cameraPos.x) * zoom)), int(screenHeight / 2 - (coords.y - cameraPos.y) * zoom)
 
 class GravitationalBody:
 
@@ -62,12 +58,6 @@ class GravitationalBody:
         return self.futureTrail[0][1]
 
 
-    # MODIFYING VARIABLES
-
-    def updateTrails(self):
-        pass
-
-
     # PHYSICS
 
     @classmethod
@@ -81,26 +71,22 @@ class GravitationalBody:
             if k % (subUpdates / trailUpdatesPerFrame) == 0:
                 cls.updateTrails()
 
+    def vectorToFront(self, other):
+        return self.frontPos.vectorTo(other.frontPos)
+
+    def vectorToCurrent(self, other):
+        return self.getCurrentPos().vectorTo(other.getCurrentPos())
+
     def gravityWith(self, other):
         deltaT = 1 / (fps * subUpdates)
-        Fgrav_magnitude = G * self.mass * other.mass / mag(vectorBetween(self.frontPos, other.frontPos))**2
-        unitVector = norm(vectorBetween(self.frontPos, other.frontPos))
+        Fgrav = (G * self.mass * other.mass / self.vectorToFront(other).mag()**2) * self.vectorToFront(other).unitVector()
 
-        delta_xvel_self = Fgrav_magnitude * unitVector[0] * deltaT / self.mass
-        delta_yvel_self = Fgrav_magnitude * unitVector[1] * deltaT / self.mass
-
-        delta_xvel_other = Fgrav_magnitude * unitVector[0] * deltaT / other.mass
-        delta_yvel_other = Fgrav_magnitude * unitVector[1] * deltaT / other.mass
-
-        self.frontVel = (self.frontVel[0] + delta_xvel_self, self.frontVel[1] + delta_yvel_self)
-        other.frontVel = (other.frontVel[0] - delta_xvel_other, other.frontVel[1] - delta_yvel_other)
+        self.frontVel += Fgrav * deltaT / self.mass
+        other.frontVel -= Fgrav * deltaT / other.mass
 
 
     def updateFrontPos(self, deltaT):
-        x, y = self.frontPos[0], self.frontPos[1]
-        xvel, yvel = self.frontVel[0], self.frontVel[1]
-
-        self.frontPos = (x + xvel * deltaT, y + yvel * deltaT)
+        self.frontPos += self.frontVel * deltaT
 
     @classmethod
     def recalculateFutureTrails(cls):
@@ -113,11 +99,12 @@ class GravitationalBody:
     # VISUALS
 
     def render(self, surface):
-        pygame.draw.circle(surface, "green", toScreenCoords(self.getCurrentPos()), self.radius * zoom)
+        currentPos = self.getCurrentPos()
+        pygame.draw.circle(surface, "green", toScreenCoords(currentPos), self.radius * zoom)
 
     def renderTrail(self, surface):
-        for trailState in self.trail:
-            pos = trailState[0]
+        for t in self.trail:
+            pos = t[0]
             pygame.Surface.set_at(surface, toScreenCoords(pos), "white")
 
     def renderFutureTrail(self, surface):
@@ -155,7 +142,7 @@ class GravitationalBody:
         ySum = 0
         totalMass = 0
         for body in cls.bodies:
-            xSum += body.getCurrentPos()[0]
-            ySum += body.getCurrentPos()[1]
+            xSum += body.getCurrentPos().x
+            ySum += body.getCurrentPos().y
             totalMass += body.mass
-        return xSum / totalMass, ySum / totalMass
+        return vec(xSum, ySum) / totalMass

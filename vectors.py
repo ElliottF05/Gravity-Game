@@ -1,17 +1,38 @@
 import math
 
-# Functions for vector operations
 
-def vectorBetween(pos1, pos2):
-    x1, y1 = pos1[0], pos1[1]
-    x2, y2 = pos2[0], pos2[1]
-    return (x2 - x1, y2 - y1)
+class vec:  # Currently only supports 2D vectors
 
-def mag(vector):
-    x, y = vector[0], vector[1]
-    return math.sqrt(x**2 + y**2)
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-def norm(vector):
-    magnitude = mag(vector)
-    return (vector[0] / magnitude, vector[1] / magnitude)
+    def __add__(self, other):
+        return vec(self.x + other.x, self.y + other.y)
 
+    def __sub__(self, other):
+        return vec(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, num):
+        return vec(self.x * num, self.y * num)
+
+    def __rmul__(self, num):
+        return vec(self.x * num, self.y * num)
+
+    def __truediv__(self, num):
+        return vec(self.x / num, self.y / num)
+
+    def mag(self):
+        return math.sqrt(self.x**2 + self.y**2)
+
+    def unitVector(self):
+        return vec(self.x / self.mag(), self.y / self.mag())
+
+    def vectorTo(self, other):
+        return vec(other.x - self.x, other.y - self.y)
+
+    def asTuple(self):
+        return (self.x, self.y)
+
+    def getValues(self):
+        return self.x, self.y

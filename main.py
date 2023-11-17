@@ -9,14 +9,14 @@ from collections import deque
 
 # Create player
 
-ship = GravitationalBody((100, 0),  (0, -150), 0.1)
+ship = GravitationalBody(vec(100, 0),  vec(0, -150), 0.1)
 
 
 # Create gravitational bodies
 
 bodies = GravitationalBody.bodies
-GravitationalBody((0, 0), (0, 0), 50, 20)
-GravitationalBody((-300, 0), (0, 60), 0.1)
+GravitationalBody(vec(0, 0), vec(0, 0), 50, 20)
+GravitationalBody(vec(-300, 0), vec(0, 60), 0.1)
 
 
 # Physics variables
@@ -42,13 +42,12 @@ gravitationalbody.screenHeight = screenHeight
 gravitationalbody.trailDuration = 1
 futureTrailDuration = 10
 gravitationalbody.futureTrailDuration = futureTrailDuration
-gravitationalbody.trailUpdatesPerFrame = 1
+gravitationalbody.trailUpdatesPerFrame = 10
 
 cameraModeList = deque(["ship", "centerOfMass"])
 cameraMode = deque[0]
 
-cameraX = 0
-cameraY = 0
+cameraPos = vec(0, 0)
 zoom = 1
 
 zoomRate = 1
@@ -62,12 +61,12 @@ space_color = (20, 20, 23)
 # User Input Variables
 prograde_increment = 1
 radial_increment = 1
+currentVelUnitVector = None
 
 # User Input Functions
 
 def maneuverShip(prograde, radial):  # note: radial in = positive
-    velUnitVector = norm(ship.getCurrentVel())
-    ship.frontVel = (ship.getCurrentVel()[0] + prograde * velUnitVector[0], ship.getCurrentVel()[1] + prograde * velUnitVector[1])
+    ship.frontVel = ship.getCurrentVel() + prograde * currentVelUnitVector
     ship.frontPos = ship.getCurrentPos()
     for body in bodies:
         if body == ship:
@@ -119,6 +118,7 @@ while running:
             if event.key == pygame.K_DOWN:
                 zoomRate = 0.99
             if event.key == pygame.K_SPACE:
+                currentVelUnitVector = ship.getCurrentVel().unitVector()
                 gamePaused = not gamePaused
 
             if gamePaused:
@@ -149,11 +149,11 @@ while running:
     zoom *= zoomRate
 
     if (cameraMode == "centerOfMass"):
-        cameraX, cameraY = GravitationalBody.getCenterOfMass()
+        cameraPos = GravitationalBody.getCenterOfMass()
     if (cameraMode == "ship"):
-        cameraX, cameraY = ship.getCurrentPos()[0], ship.getCurrentPos()[1]
+        cameraPos = ship.getCurrentPos()
 
-    gravitationalbody.updateCamera(cameraX, cameraY, zoom)
+    gravitationalbody.updateCamera(cameraPos, zoom)
 
 
     # Rendering all visuals
