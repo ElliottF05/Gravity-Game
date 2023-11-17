@@ -13,6 +13,8 @@ screenHeight = 0
 trailDuration = 0
 futureTrailDuration = 0
 trailUpdatesPerFrame = 10
+fps = 0
+subUpdates = 0
 
 # Camera values
 cameraX = 0
@@ -69,17 +71,18 @@ class GravitationalBody:
     # PHYSICS
 
     @classmethod
-    def calculateMotion(cls, fps, subUpdates):
+    def calculateMotion(cls):
         for k in range(subUpdates):
             for i in range(len(cls.bodies)):
                 for j in range(i + 1, len(cls.bodies)):
-                    cls.bodies[i].gravityWith(cls.bodies[j], 1 / (fps * subUpdates))
+                    cls.bodies[i].gravityWith(cls.bodies[j])
             for body in cls.bodies:
                 body.updateFrontPos(1 / (fps * subUpdates))
             if k % (subUpdates / trailUpdatesPerFrame) == 0:
                 cls.updateTrails()
 
-    def gravityWith(self, other, deltaT):
+    def gravityWith(self, other):
+        deltaT = 1 / (fps * subUpdates)
         Fgrav_magnitude = G * self.mass * other.mass / mag(vectorBetween(self.frontPos, other.frontPos))**2
         unitVector = norm(vectorBetween(self.frontPos, other.frontPos))
 
@@ -99,6 +102,13 @@ class GravitationalBody:
 
         self.frontPos = (x + xvel * deltaT, y + yvel * deltaT)
 
+    @classmethod
+    def recalculateFutureTrails(cls):
+        for body in cls.bodies:
+            body.frontPos = body.getCurrentPos()
+            body.futureTrail = deque()
+        for i in range(60 * futureTrailDuration):
+            cls.calculateMotion()
 
     # VISUALS
 

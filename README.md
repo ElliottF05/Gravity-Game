@@ -14,8 +14,10 @@ Not currently near minimum viable product
 - Some procedurally generated levels
 
 ## Next Steps
-1. Add basic ship controls
-   2. Prograde and retrograde, normal in/out
+1. Make custom vector class to replace using tuples.
+   1. Implement + and * operator functionality
+2. Add functionality for radial in and radial out maneuvers
+3. Add buttons for better UX
 2. Add sprites and make it good looking
 3. Finalize
 

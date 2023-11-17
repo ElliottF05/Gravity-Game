@@ -1,9 +1,16 @@
-import gravitationalbody, vectors
+import gravitationalbody
 
 from gravitationalbody import GravitationalBody
+from vectors import *
 
 import pygame
 from collections import deque
+
+
+# Create player
+
+ship = GravitationalBody((100, 0),  (0, -150), 0.1)
+
 
 # Create gravitational bodies
 
@@ -12,21 +19,19 @@ GravitationalBody((0, 0), (0, 0), 50, 20)
 GravitationalBody((-300, 0), (0, 60), 0.1)
 
 
-# Create player
-
-ship = GravitationalBody((100, 0),  (0, -150), 0.1)
-
-
 # Physics variables
 
 subUpdates = 100
+gravitationalbody.subUpdates = subUpdates
 gamePaused = False
+
 
 # Screen variables
 
 screenWidth = 1200
 screenHeight = 720
 fps = 60
+gravitationalbody.fps = fps
 
 gravitationalbody.screenWidth = screenWidth
 gravitationalbody.screenHeight = screenHeight
@@ -35,9 +40,9 @@ gravitationalbody.screenHeight = screenHeight
 # Display variables
 
 gravitationalbody.trailDuration = 1
-futureTrailDuration = 1
+futureTrailDuration = 10
 gravitationalbody.futureTrailDuration = futureTrailDuration
-gravitationalbody.trailUpdatesPerFrame = 10
+gravitationalbody.trailUpdatesPerFrame = 1
 
 cameraModeList = deque(["ship", "centerOfMass"])
 cameraMode = deque[0]
@@ -54,10 +59,27 @@ zoomRate = 1
 space_color = (20, 20, 23)
 
 
+# User Input Variables
+prograde_increment = 1
+radial_increment = 1
+
+# User Input Functions
+
+def maneuverShip(prograde, radial):  # note: radial in = positive
+    velUnitVector = norm(ship.getCurrentVel())
+    ship.frontVel = (ship.getCurrentVel()[0] + prograde * velUnitVector[0], ship.getCurrentVel()[1] + prograde * velUnitVector[1])
+    ship.frontPos = ship.getCurrentPos()
+    for body in bodies:
+        if body == ship:
+            continue
+        body.frontVel = body.getCurrentVel()
+        body.frontPos = body.getCurrentPos()
+    GravitationalBody.recalculateFutureTrails()
+
 # Prior to Loading Display
 
 for i in range(60 * futureTrailDuration):
-    GravitationalBody.calculateMotion(fps, subUpdates)
+    GravitationalBody.calculateMotion()
 
 
 # Pygame setup
@@ -66,11 +88,13 @@ pygame.init()
 screen = pygame.display.set_mode((screenWidth,screenHeight))
 pygame.display.set_caption("Gravity Game")
 
+clock = pygame.time.Clock()
+running = True
+
+# Text
 font = pygame.font.Font("freesansbold.ttf", 16)
 text = font.render("hello", True, "white", "black")
 
-clock = pygame.time.Clock()
-running = True
 
 
 # Running Loop
@@ -97,6 +121,18 @@ while running:
             if event.key == pygame.K_SPACE:
                 gamePaused = not gamePaused
 
+            if gamePaused:
+                if event.key == pygame.K_EQUALS:
+                    maneuverShip(prograde_increment,0)
+                if event.key == pygame.K_MINUS:
+                    maneuverShip(-prograde_increment, 0)
+                if event.key == pygame.K_0:
+                    prograde_increment *= 2
+                    radial_increment *= 2
+                if event.key == pygame.K_9:
+                    prograde_increment *= 0.5
+                    radial_increment *= 0.5
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                 zoomRate = 1
@@ -105,7 +141,7 @@ while running:
 
     # Physics Updates
     if not gamePaused:
-        GravitationalBody.calculateMotion(fps, subUpdates)
+        GravitationalBody.calculateMotion()
 
 
     # Camera Updates
@@ -130,6 +166,7 @@ while running:
     GravitationalBody.renderTrails(screen)
     GravitationalBody.renderBodies(screen)
 
+    screen.blit(text, (0,0))
 
     pygame.display.flip()  # flip() the display to put new visuals on screen
 
@@ -138,8 +175,3 @@ while running:
     clock.tick(fps)  # update game clock
 
 pygame.quit()
-
-
-
-# USER INPUT FUNCTIONS
-
