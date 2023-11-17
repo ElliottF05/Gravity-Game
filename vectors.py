@@ -22,6 +22,9 @@ class vec:  # Currently only supports 2D vectors
     def __truediv__(self, num):
         return vec(self.x / num, self.y / num)
 
+    def __str__(self):
+        return f"vec({self.x}, {self.y})"
+
     def mag(self):
         return math.sqrt(self.x**2 + self.y**2)
 
@@ -36,3 +39,9 @@ class vec:  # Currently only supports 2D vectors
 
     def getValues(self):
         return self.x, self.y
+
+    def angleWith(self, other):
+        return math.acos((self.x * other.x + self.y * other.y) / (self.mag() * other.mag()))
+
+    def getPerpendicular(self):
+        return vec(-self.y, self.x)

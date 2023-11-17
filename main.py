@@ -3,7 +3,7 @@ import gravitationalbody
 from gravitationalbody import GravitationalBody
 from vectors import *
 
-import pygame
+import pygame, time
 from collections import deque
 
 
@@ -21,7 +21,7 @@ GravitationalBody(vec(-300, 0), vec(0, 60), 0.1)
 
 # Physics variables
 
-subUpdates = 100
+subUpdates = 10
 gravitationalbody.subUpdates = subUpdates
 gamePaused = False
 
@@ -62,11 +62,22 @@ space_color = (20, 20, 23)
 prograde_increment = 1
 radial_increment = 1
 currentVelUnitVector = None
+currentNetGravVector = None
 
 # User Input Functions
 
 def maneuverShip(prograde, radial):  # note: radial in = positive
-    ship.frontVel = ship.getCurrentVel() + prograde * currentVelUnitVector
+    ship.frontVel = ship.getCurrentVel()
+
+    if prograde != 0:
+        ship.frontVel += prograde * currentVelUnitVector
+        print(ship.frontVel)
+    else:
+        flipRadial = 1
+        if (currentVelUnitVector.getPerpendicular().angleWith(currentNetGravVector) > math.pi / 2):
+            flipRadial = -1
+        ship.frontVel += radial * currentVelUnitVector.getPerpendicular() * flipRadial
+
     ship.frontPos = ship.getCurrentPos()
     for body in bodies:
         if body == ship:
@@ -119,17 +130,22 @@ while running:
                 zoomRate = 0.99
             if event.key == pygame.K_SPACE:
                 currentVelUnitVector = ship.getCurrentVel().unitVector()
+                currentNetGravVector = GravitationalBody.getNetGravityVector(ship)
                 gamePaused = not gamePaused
 
             if gamePaused:
-                if event.key == pygame.K_EQUALS:
+                if event.key == pygame.K_w:
                     maneuverShip(prograde_increment,0)
-                if event.key == pygame.K_MINUS:
+                if event.key == pygame.K_s:
                     maneuverShip(-prograde_increment, 0)
-                if event.key == pygame.K_0:
+                if event.key == pygame.K_a:
+                    maneuverShip(0, radial_increment)
+                if event.key == pygame.K_d:
+                    maneuverShip(0, -radial_increment)
+                if event.key == pygame.K_e:
                     prograde_increment *= 2
                     radial_increment *= 2
-                if event.key == pygame.K_9:
+                if event.key == pygame.K_q:
                     prograde_increment *= 0.5
                     radial_increment *= 0.5
 

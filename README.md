@@ -14,7 +14,7 @@ Not currently near minimum viable product
 - Some procedurally generated levels
 
 ## Next Steps
-2. Add functionality for radial in and radial out maneuvers
+2. Maybe rewrite gravity simulation code for simplicity, speed
 3. Add realtime maneuvers where key is held instead of pressing a key for large jarring increments
 3. Add buttons for better UX
 2. Add sprites and make it good looking

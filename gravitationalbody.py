@@ -2,7 +2,7 @@ import vectors
 from vectors import *
 
 from collections import deque
-import math, pygame
+import math, pygame, time
 
 # Physics Constants
 G = 100000
@@ -93,7 +93,7 @@ class GravitationalBody:
         for body in cls.bodies:
             body.frontPos = body.getCurrentPos()
             body.futureTrail = deque()
-        for i in range(60 * futureTrailDuration):
+        for i in range(60 * futureTrailDuration - 1):
             cls.calculateMotion()
 
     # VISUALS
@@ -146,3 +146,15 @@ class GravitationalBody:
             ySum += body.getCurrentPos().y
             totalMass += body.mass
         return vec(xSum, ySum) / totalMass
+
+
+    # Control / Interaction Functions
+
+    @classmethod
+    def getNetGravityVector(cls, ship):
+        netGravity = vec(0, 0)
+        for body in cls.bodies:
+            if body == ship:
+                continue
+            netGravity += (-G * body.mass * ship.mass / body.vectorToCurrent(ship).mag()**2) * body.vectorToCurrent(ship).unitVector()
+        return netGravity
