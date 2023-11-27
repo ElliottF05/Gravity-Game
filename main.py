@@ -1,27 +1,27 @@
 import gravitationalbody
 
 from gravitationalbody import GravitationalBody
-from vectors import *
 
 import pygame, time
+import numpy as np
 from collections import deque
 
 
 # Create player
 
-ship = GravitationalBody(vec(100, 0),  vec(0, -150), 0.1)
+ship = GravitationalBody((100, 0),  (0, -150), 0.1)
 
 
 # Create gravitational bodies
 
+GravitationalBody((0, 0), (0, 0), 50, 20)
+GravitationalBody((-300, 0), (0, 60), 0.1)
 bodies = GravitationalBody.bodies
-GravitationalBody(vec(0, 0), vec(0, 0), 50, 20)
-GravitationalBody(vec(-300, 0), vec(0, 60), 0.1)
 
 
 # Physics variables
 
-subUpdates = 10
+subUpdates = gravitationalbody.subUpdates = 10
 gravitationalbody.subUpdates = subUpdates
 gamePaused = False
 
@@ -40,14 +40,13 @@ gravitationalbody.screenHeight = screenHeight
 # Display variables
 
 gravitationalbody.trailDuration = 1
-futureTrailDuration = 10
-gravitationalbody.futureTrailDuration = futureTrailDuration
+gravitationalbody.futureTrailDuration = futureTrailDuration = 10
 gravitationalbody.trailUpdatesPerFrame = 10
 
 cameraModeList = deque(["ship", "centerOfMass"])
 cameraMode = deque[0]
 
-cameraPos = vec(0, 0)
+cameraPos = np.array([0,0])
 zoom = 1
 
 zoomRate = 1
@@ -66,30 +65,20 @@ currentNetGravVector = None
 
 # User Input Functions
 
-def maneuverShip(prograde, radial):  # note: radial in = positive
-    ship.frontVel = ship.getCurrentVel()
+def maneuverShip(prograde, radial):
 
     if prograde != 0:
-        ship.frontVel += prograde * currentVelUnitVector
-        print(ship.frontVel)
+        ship.vel += prograde * ship.vel / np.linalg.norm(ship.vel)
     else:
-        flipRadial = 1
-        if (currentVelUnitVector.getPerpendicular().angleWith(currentNetGravVector) > math.pi / 2):
-            flipRadial = -1
-        ship.frontVel += radial * currentVelUnitVector.getPerpendicular() * flipRadial
+        ship.vel += radial * np.array([-ship.vel[1], ship.vel[0]]) / np.linalg.norm(ship.vel)
 
-    ship.frontPos = ship.getCurrentPos()
     for body in bodies:
         if body == ship:
             continue
-        body.frontVel = body.getCurrentVel()
-        body.frontPos = body.getCurrentPos()
-    GravitationalBody.recalculateFutureTrails()
+
 
 # Prior to Loading Display
 
-for i in range(60 * futureTrailDuration):
-    GravitationalBody.calculateMotion()
 
 
 # Pygame setup
@@ -129,8 +118,6 @@ while running:
             if event.key == pygame.K_DOWN:
                 zoomRate = 0.99
             if event.key == pygame.K_SPACE:
-                currentVelUnitVector = ship.getCurrentVel().unitVector()
-                currentNetGravVector = GravitationalBody.getNetGravityVector(ship)
                 gamePaused = not gamePaused
 
             if gamePaused:
@@ -167,7 +154,7 @@ while running:
     if (cameraMode == "centerOfMass"):
         cameraPos = GravitationalBody.getCenterOfMass()
     if (cameraMode == "ship"):
-        cameraPos = ship.getCurrentPos()
+        cameraPos = ship.pos()
 
     gravitationalbody.updateCamera(cameraPos, zoom)
 
@@ -177,7 +164,8 @@ while running:
     screen.fill(space_color)  # filling screen with color to wipe away previous frame
 
     if gamePaused:
-        GravitationalBody.renderFutureTrails(screen)
+        # render future trails
+        pass
 
     GravitationalBody.renderTrails(screen)
     GravitationalBody.renderBodies(screen)
