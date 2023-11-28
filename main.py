@@ -9,13 +9,13 @@ from collections import deque
 
 # Create player
 
-ship = GravitationalBody((100, 0),  (0, -150), 0.1)
+ship = GravitationalBody((100, 0),  (0, -150), 2)
 
 
 # Create gravitational bodies
 
 GravitationalBody((0, 0), (0, 0), 50, 20)
-GravitationalBody((-300, 0), (0, 60), 0.1)
+GravitationalBody((-300, 0), (0, 60), 2)
 bodies = GravitationalBody.bodies
 
 
@@ -23,6 +23,8 @@ bodies = GravitationalBody.bodies
 
 subUpdates = gravitationalbody.subUpdates = 10
 gamePaused = False
+
+shipVelBeforeManeuver = 0
 
 
 # Screen variables
@@ -39,7 +41,7 @@ gravitationalbody.futureTrailDuration = futureTrailDuration = 8
 gravitationalbody.trailUpdatesPerFrame = 5
 gravitationalbody.futureTrailUpdatesPerFrame = 2
 
-cameraModeList = deque(["ship", "centerOfMass"])
+cameraModeList = deque(["zero", "ship", "centerOfMass"])
 cameraMode = deque[0]
 
 cameraPos = np.array([0,0])
@@ -54,19 +56,20 @@ space_color = (20, 20, 23)
 
 
 # User Input Variables
-prograde_increment = 1
-radial_increment = 1
+prograde_thrust = 0
+prograde_increase_rate = 0.01
+radial_thrust = 0
+radial_increase_rate = 0.01
 currentVelUnitVector = None
 currentNetGravVector = None
 
 # User Input Functions
 
 def maneuverShip(prograde, radial):
-
     if prograde != 0:
-        ship.vel += prograde * ship.vel / np.linalg.norm(ship.vel)
+        ship.vel += prograde * shipVelBeforeManeuver / np.linalg.norm(shipVelBeforeManeuver)
     elif radial != 0:
-        ship.vel += radial * np.array([-ship.vel[1], ship.vel[0]]) / np.linalg.norm(ship.vel)
+        ship.vel += radial * np.array([-shipVelBeforeManeuver[1], shipVelBeforeManeuver[0]]) / np.linalg.norm(shipVelBeforeManeuver)
 
     start = time.time()
     GravitationalBody.calculateFutureTrails()
@@ -123,28 +126,44 @@ while running:
             if event.key == pygame.K_DOWN:
                 zoomRate = 0.99
             if event.key == pygame.K_SPACE:
+                shipVelBeforeManeuver = np.copy(ship.vel)
                 GravitationalBody.calculateFutureTrails()
                 gamePaused = not gamePaused
 
             if gamePaused:
                 if event.key == pygame.K_w:
-                    maneuverShip(prograde_increment,0)
+                    prograde_thrust = prograde_increase_rate
                 if event.key == pygame.K_s:
-                    maneuverShip(-prograde_increment, 0)
+                    prograde_thrust = -prograde_increase_rate
                 if event.key == pygame.K_a:
-                    maneuverShip(0, radial_increment)
+                    radial_thrust = radial_increase_rate
                 if event.key == pygame.K_d:
-                    maneuverShip(0, -radial_increment)
+                    radial_thrust = -radial_increase_rate
                 if event.key == pygame.K_e:
-                    prograde_increment *= 2
-                    radial_increment *= 2
+                    prograde_increase_rate *= 2
+                    radial_increase_rate *= 2
                 if event.key == pygame.K_q:
-                    prograde_increment *= 0.5
-                    radial_increment *= 0.5
+                    prograde_increase_rate *= 0.5
+                    radial_increase_rate *= 0.5
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                 zoomRate = 1
+
+            if gamePaused:
+                if event.key == pygame.K_w:
+                    prograde_thrust = 0
+                if event.key == pygame.K_s:
+                    prograde_thrust = 0
+                if event.key == pygame.K_a:
+                    radial_thrust = 0
+                if event.key == pygame.K_d:
+                    radial_thrust = 0
+
+
+    # Maneuvers
+
+    if (prograde_thrust != 0 or radial_thrust != 0): maneuverShip(prograde_thrust, radial_thrust)
 
 
 
@@ -162,6 +181,8 @@ while running:
         cameraPos = GravitationalBody.getCenterOfMass()
     if (cameraMode == "ship"):
         cameraPos = ship.pos
+    if (cameraMode == "zero"):
+        cameraPos = np.array([0,0])
 
     gravitationalbody.updateCamera(cameraPos, zoom)
 
