@@ -14,11 +14,11 @@ Not currently near minimum viable product
 - Some procedurally generated levels
 
 ## Next Steps
-3. Add realtime maneuvers where key is held instead of pressing a key for large jarring increments
-6. Add buttons for better UX
-7. Create "game" aspects were player must reach desired orbit
-2. Add sprites and make it good looking
-3. Finalize
+1. Add realtime maneuvers where key is held instead of pressing a key for large jarring increments
+2. Add buttons for better UX
+3. Create "game" aspects were player must reach desired orbit
+4. Add sprites and make it good looking
+5. Finalize
 
 ## Potential Changes
 - Maybe make trail its own class/object

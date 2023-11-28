@@ -9,13 +9,13 @@ from collections import deque
 
 # Create player
 
-ship = GravitationalBody((100, 0),  (0, -150), 2)
+ship = GravitationalBody((0, 0),  (0, 0.0001), 1)
 
 
 # Create gravitational bodies
 
-GravitationalBody((0, 0), (0, 0), 50, 20)
-GravitationalBody((-300, 0), (0, 60), 2)
+GravitationalBody((-200, 0), (0, 70), 50, 20)
+GravitationalBody((200, 0), (0, -70), 50, 20)
 bodies = GravitationalBody.bodies
 
 

@@ -215,7 +215,7 @@ class GravitationalBody:
         cumulativePos = np.zeros(2)
         totalMass = 0
         for body in cls.bodies:
-            cumulativePos += body.pos
+            cumulativePos += body.pos * body.mass
             totalMass += body.mass
         return cumulativePos / totalMass
 
