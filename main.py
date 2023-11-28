@@ -22,26 +22,22 @@ bodies = GravitationalBody.bodies
 # Physics variables
 
 subUpdates = gravitationalbody.subUpdates = 10
-gravitationalbody.subUpdates = subUpdates
 gamePaused = False
 
 
 # Screen variables
 
-screenWidth = 1200
-screenHeight = 720
-fps = 60
-gravitationalbody.fps = fps
-
-gravitationalbody.screenWidth = screenWidth
-gravitationalbody.screenHeight = screenHeight
+screenWidth = gravitationalbody.screenWidth = 1200
+screenHeight = gravitationalbody.screenHeight = 720
+fps = gravitationalbody.fps = 60
 
 
 # Display variables
 
 gravitationalbody.trailDuration = 1
-gravitationalbody.futureTrailDuration = futureTrailDuration = 10
-gravitationalbody.trailUpdatesPerFrame = 10
+gravitationalbody.futureTrailDuration = futureTrailDuration = 8
+gravitationalbody.trailUpdatesPerFrame = 5
+gravitationalbody.futureTrailUpdatesPerFrame = 2
 
 cameraModeList = deque(["ship", "centerOfMass"])
 cameraMode = deque[0]
@@ -69,12 +65,12 @@ def maneuverShip(prograde, radial):
 
     if prograde != 0:
         ship.vel += prograde * ship.vel / np.linalg.norm(ship.vel)
-    else:
+    elif radial != 0:
         ship.vel += radial * np.array([-ship.vel[1], ship.vel[0]]) / np.linalg.norm(ship.vel)
 
-    for body in bodies:
-        if body == ship:
-            continue
+    start = time.time()
+    GravitationalBody.calculateFutureTrails()
+    print(time.time() - start)
 
 
 # Prior to Loading Display
@@ -93,6 +89,15 @@ running = True
 # Text
 font = pygame.font.Font("freesansbold.ttf", 16)
 text = font.render("hello", True, "white", "black")
+
+
+queue = deque()
+queue.append(np.array([0,0]))
+queue.append(np.array([1,0]))
+queue.append(np.array([2,0]))
+
+pygame.draw.aalines(screen, "white", True, queue)
+
 
 
 
@@ -118,6 +123,7 @@ while running:
             if event.key == pygame.K_DOWN:
                 zoomRate = 0.99
             if event.key == pygame.K_SPACE:
+                GravitationalBody.calculateFutureTrails()
                 gamePaused = not gamePaused
 
             if gamePaused:
@@ -147,6 +153,7 @@ while running:
         GravitationalBody.calculateMotion()
 
 
+
     # Camera Updates
 
     zoom *= zoomRate
@@ -154,7 +161,7 @@ while running:
     if (cameraMode == "centerOfMass"):
         cameraPos = GravitationalBody.getCenterOfMass()
     if (cameraMode == "ship"):
-        cameraPos = ship.pos()
+        cameraPos = ship.pos
 
     gravitationalbody.updateCamera(cameraPos, zoom)
 
@@ -164,8 +171,9 @@ while running:
     screen.fill(space_color)  # filling screen with color to wipe away previous frame
 
     if gamePaused:
-        # render future trails
-        pass
+        start = time.time()
+        GravitationalBody.renderFutureTrails(screen)
+        # print(time.time() - start)
 
     GravitationalBody.renderTrails(screen)
     GravitationalBody.renderBodies(screen)
