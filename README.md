@@ -2,7 +2,7 @@
 Control a spaceship to get to where you need to be! This is my first game, made using pygame and to improve my skills.
 
 ## Current Status: In progress
-Not currently near minimum viable product
+At mininum viable product for physics, but not for "game" aspects
 
 ## Goals
 - Use OOP
@@ -14,12 +14,10 @@ Not currently near minimum viable product
 - Some procedurally generated levels
 
 ## Next Steps
-1. Add realtime maneuvers where key is held instead of pressing a key for large jarring increments
-2. Add buttons for better UX
+1. Add buttons for better UX
 3. Create "game" aspects were player must reach desired orbit
 4. Add sprites and make it good looking
 5. Finalize
 
 ## Potential Changes
-- Maybe make trail its own class/object
 - Look up best practices for sharing variables across modules and implement this!!!
