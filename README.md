@@ -14,12 +14,9 @@ Not currently near minimum viable product
 - Some procedurally generated levels
 
 ## Next Steps
-2. URGENT: rewrite gravity simulation code for SPEED and simplicity
-   3. use numpy/numba
-   4. must be able to calculate entire future trail in one frame
-4. Use pygame.draw.aalines instead of Surface.set_at to draw trail (>5x faster) 
-6. Add buttons for better UX
 3. Add realtime maneuvers where key is held instead of pressing a key for large jarring increments
+6. Add buttons for better UX
+7. Create "game" aspects were player must reach desired orbit
 2. Add sprites and make it good looking
 3. Finalize
 
