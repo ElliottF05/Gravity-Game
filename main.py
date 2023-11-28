@@ -23,6 +23,7 @@ bodies = GravitationalBody.bodies
 
 subUpdates = gravitationalbody.subUpdates = 10
 gamePaused = False
+timeAcceleration = 1
 
 shipVelBeforeManeuver = 0
 
@@ -129,6 +130,10 @@ while running:
                 shipVelBeforeManeuver = np.copy(ship.vel)
                 GravitationalBody.calculateFutureTrails()
                 gamePaused = not gamePaused
+            if event.key == pygame.K_PERIOD:
+                timeAcceleration += 1
+            if event.key == pygame.K_COMMA:
+                timeAcceleration = max(1, timeAcceleration-1)
 
             if gamePaused:
                 if event.key == pygame.K_w:
@@ -169,7 +174,8 @@ while running:
 
     # Physics Updates
     if not gamePaused:
-        GravitationalBody.calculateMotion()
+        for _ in range(timeAcceleration):
+            GravitationalBody.calculateMotion()
 
 
 
