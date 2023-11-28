@@ -72,9 +72,7 @@ def maneuverShip(prograde, radial):
     elif radial != 0:
         ship.vel += radial * np.array([-shipVelBeforeManeuver[1], shipVelBeforeManeuver[0]]) / np.linalg.norm(shipVelBeforeManeuver)
 
-    start = time.time()
     GravitationalBody.calculateFutureTrails()
-    print(time.time() - start)
 
 
 # Prior to Loading Display
@@ -91,17 +89,9 @@ clock = pygame.time.Clock()
 running = True
 
 # Text
+
 font = pygame.font.Font("freesansbold.ttf", 16)
 text = font.render("hello", True, "white", "black")
-
-
-queue = deque()
-queue.append(np.array([0,0]))
-queue.append(np.array([1,0]))
-queue.append(np.array([2,0]))
-
-pygame.draw.aalines(screen, "white", True, queue)
-
 
 
 
@@ -171,12 +161,11 @@ while running:
     if (prograde_thrust != 0 or radial_thrust != 0): maneuverShip(prograde_thrust, radial_thrust)
 
 
-
     # Physics Updates
+
     if not gamePaused:
         for _ in range(timeAcceleration):
             GravitationalBody.calculateMotion()
-
 
 
     # Camera Updates
@@ -198,9 +187,7 @@ while running:
     screen.fill(space_color)  # filling screen with color to wipe away previous frame
 
     if gamePaused:
-        start = time.time()
         GravitationalBody.renderFutureTrails(screen)
-        # print(time.time() - start)
 
     GravitationalBody.renderTrails(screen)
     GravitationalBody.renderBodies(screen)

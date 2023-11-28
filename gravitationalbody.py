@@ -61,18 +61,6 @@ class GravitationalBody:
         self.trail.append(self.pos)
 
 
-    # RETRIEVING VARIABLES
-
-    def get_x_pos(self):
-        return self.pos[0]
-    def get_y_pos(self):
-        return self.pos[1]
-    def get_x_vel(self):
-        return self.vel[0]
-    def get_y_vel(self):
-        return self.vel[1]
-
-
     # PHYSICS
 
     @classmethod
@@ -138,16 +126,10 @@ class GravitationalBody:
                     Fgrav_x = Fgrav_mag * r_hat_x
                     Fgrav_y = Fgrav_mag * r_hat_y
 
-                    # if i == 0: print(body1)
                     body1[2] += Fgrav_x / m1 * deltaT
-                    # if i == 0: print(body1)
                     body1[3] += Fgrav_y / m1 * deltaT
                     body2[2] -= Fgrav_x / m2 * deltaT
                     body2[3] -= Fgrav_y / m2 * deltaT
-
-                    # bodyData[j] = body2
-
-                # bodyData[i] = body1
 
             for i in range(np.shape(bodyData)[0]):
                 bodyData[i][0] += bodyData[i][2] * deltaT
@@ -157,7 +139,6 @@ class GravitationalBody:
                 for bodyPos in range(np.shape(bodyData)[0]):
                     futureTrailData[bodyPos][futureTrailPos] = np.array([bodyData[bodyPos][0], bodyData[bodyPos][1]])
                 futureTrailPos += 1
-
 
 
     @classmethod
@@ -170,13 +151,10 @@ class GravitationalBody:
             body = cls.bodies[i]
             bodyData[i] = np.array([body.pos[0], body.pos[1], body.vel[0], body.vel[1], body.mass])
 
-        # print("prior to crash")
         cls.numbaFutureTrails(bodyData, futureTrailData)
 
         for i in range(len(cls.bodies)):
             cls.bodies[i].futureTrail = deque(futureTrailData[i])
-
-
 
 
     # VISUALS
@@ -187,13 +165,9 @@ class GravitationalBody:
 
     def renderTrail(self, surface):
         pygame.draw.aalines(surface, "white", False, [toScreenCoords(pos) for pos in self.trail])
-        # for pos in self.trail:
-        #     pygame.Surface.set_at(surface, toScreenCoords(pos), "white")
 
     def renderFutureTrail(self, surface):
         pygame.draw.aalines(surface, (100, 100, 100), False, [toScreenCoords(pos) for pos in self.futureTrail])
-        # for pos in self.futureTrail:
-        #     pygame.Surface.set_at(surface, toScreenCoords(pos), (100,100,100 ))
 
     @classmethod
     def renderBodies(cls, surface):
@@ -218,6 +192,3 @@ class GravitationalBody:
             cumulativePos += body.pos * body.mass
             totalMass += body.mass
         return cumulativePos / totalMass
-
-
-    # Control / Interaction Functions
