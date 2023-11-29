@@ -44,7 +44,7 @@ class GravitationalBody:
 
     bodies = []
 
-    def __init__(self, startPos , startVel, mass, radius=10):
+    def __init__(self, startPos , startVel, mass, radius=10, color="green"):
 
         self.pos = np.array(startPos, dtype=np.float64)
         self.vel = np.array(startVel, dtype=np.float64)
@@ -55,7 +55,7 @@ class GravitationalBody:
         self.trail = deque()
         self.futureTrail = deque()
 
-        self.image = None
+        self.color = color
         self.bodies.append(self)
 
         self.trail.append(self.pos)
@@ -161,7 +161,7 @@ class GravitationalBody:
 
     def render(self, surface):
         currentPos = self.pos
-        pygame.draw.circle(surface, "green", toScreenCoords(currentPos), self.radius * zoom)
+        pygame.draw.circle(surface, self.color, toScreenCoords(currentPos), self.radius * zoom)
 
     def renderTrail(self, surface):
         pygame.draw.aalines(surface, "white", False, [toScreenCoords(pos) for pos in self.trail])

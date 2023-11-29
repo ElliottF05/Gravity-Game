@@ -9,7 +9,7 @@ from collections import deque
 
 # Create player
 
-ship = GravitationalBody((0, 0),  (0, 0.0001), 1)
+ship = GravitationalBody((0, 0),  (0, 0.0001), 1, 5, "red")
 
 
 # Create gravitational bodies
@@ -61,12 +61,11 @@ prograde_thrust = 0
 prograde_increase_rate = 0.01
 radial_thrust = 0
 radial_increase_rate = 0.01
-currentVelUnitVector = None
-currentNetGravVector = None
+
 
 # User Input Functions
 
-def maneuverShip(prograde, radial):
+def maneuver_ship(prograde, radial):
     if prograde != 0:
         ship.vel += prograde * shipVelBeforeManeuver / np.linalg.norm(shipVelBeforeManeuver)
     elif radial != 0:
@@ -87,11 +86,6 @@ pygame.display.set_caption("Gravity Game")
 
 clock = pygame.time.Clock()
 running = True
-
-# Text
-
-font = pygame.font.Font("freesansbold.ttf", 16)
-text = font.render("hello", True, "white", "black")
 
 
 
@@ -158,7 +152,7 @@ while running:
 
     # Maneuvers
 
-    if (prograde_thrust != 0 or radial_thrust != 0): maneuverShip(prograde_thrust, radial_thrust)
+    if prograde_thrust != 0 or radial_thrust != 0: maneuver_ship(prograde_thrust, radial_thrust)
 
 
     # Physics Updates
@@ -172,11 +166,11 @@ while running:
 
     zoom *= zoomRate
 
-    if (cameraMode == "centerOfMass"):
+    if cameraMode == "centerOfMass":
         cameraPos = GravitationalBody.getCenterOfMass()
-    if (cameraMode == "ship"):
+    if cameraMode == "ship":
         cameraPos = ship.pos
-    if (cameraMode == "zero"):
+    if cameraMode == "zero":
         cameraPos = np.array([0,0])
 
     gravitationalbody.updateCamera(cameraPos, zoom)
@@ -191,8 +185,6 @@ while running:
 
     GravitationalBody.renderTrails(screen)
     GravitationalBody.renderBodies(screen)
-
-    screen.blit(text, (0,0))
 
     pygame.display.flip()  # flip() the display to put new visuals on screen
 
