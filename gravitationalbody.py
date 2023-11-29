@@ -50,7 +50,7 @@ class GravitationalBody:
 
         self.pos = np.array(startPos, dtype=np.float64)
         self.vel = np.array(startVel, dtype=np.float64)
-        # self.accel = np.zeros(2)
+        self.accel = np.zeros(2)
 
         self.mass = mass
         self.radius = radius
@@ -68,27 +68,38 @@ class GravitationalBody:
 
     @classmethod
     def calculateMotion(cls):
+        time_elapsed = 0
+        while time_elapsed < 1.0 / 60.0:
 
-        for k in range(subUpdates):
+            for body in cls.bodies:
+                body.accel[0] = 0
+                body.accel[1] = 0
 
             for i in range(len(cls.bodies)):
                 for j in range(i + 1, len(cls.bodies)):
 
                     cls.bodies[i].gravityWith(cls.bodies[j])
 
+            maxAccel_mag = max(math.sqrt(body.accel[0]**2 + body.accel[1]**2) for body in cls.bodies)
+
+            deltaT = 1 / (maxAccel_mag * 1)
+            deltaT = max(min_deltaT, deltaT)
+            deltaT = min(max_deltaT, deltaT)
+            deltaT = 1.0 / (60.0 * math.ceil((1.0 / 60.0) / deltaT))  # rounds deltaT to integer quotient of 1/60 e.g (1/60) / 10
+
             for body in cls.bodies:
-                deltaT = 1 / (fps * subUpdates)
+                body.vel += body.accel * deltaT
                 body.pos += body.vel * deltaT
 
-            if k % (subUpdates) == 0:
-                for body in cls.bodies:
-                    body.trail.append(np.copy(body.pos))
-                    if (len(body.trail)) > trailDuration * 60:
-                        body.trail.popleft()
+            time_elapsed += deltaT
+
+        for body in cls.bodies:
+            body.trail.append(np.copy(body.pos))
+            if (len(body.trail)) > trailDuration * 60:
+                body.trail.popleft()
 
 
     def gravityWith(self, other):
-        deltaT = 1 / (fps * subUpdates)
         m1= self.mass
         m2 = other.mass
         r = other.pos - self.pos
@@ -97,8 +108,8 @@ class GravitationalBody:
 
         Fgrav = G * m1 * m2 / r_mag**2 * r_hat
 
-        self.vel += Fgrav * deltaT / m1
-        other.vel -= Fgrav * deltaT / m2
+        self.accel += Fgrav / m1
+        other.accel -= Fgrav / m2
 
 
     @staticmethod
