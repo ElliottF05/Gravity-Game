@@ -9,15 +9,17 @@ from numba import njit
 # Physics Constants
 G = 100000
 
+max_deltaT = 1.0 / 60.0
+min_deltaT = 1.0 / (60.0 * 20.0)
+
 # Display Constants
 screenWidth = 0
 screenHeight = 0
 trailDuration = 0
-futureTrailDuration = 0
-trailUpdatesPerFrame = 0
-futureTrailUpdatesPerFrame = 0
+futureTrailUpdates = 0
 fps = 0
 subUpdates = 0
+timeStepsPerTrailPoint = 0
 
 # Camera values
 cameraPos = np.array([0,0])
@@ -48,6 +50,7 @@ class GravitationalBody:
 
         self.pos = np.array(startPos, dtype=np.float64)
         self.vel = np.array(startVel, dtype=np.float64)
+        # self.accel = np.zeros(2)
 
         self.mass = mass
         self.radius = radius
@@ -77,10 +80,10 @@ class GravitationalBody:
                 deltaT = 1 / (fps * subUpdates)
                 body.pos += body.vel * deltaT
 
-            if k % (int(subUpdates / trailUpdatesPerFrame)) == 0:
+            if k % (subUpdates) == 0:
                 for body in cls.bodies:
                     body.trail.append(np.copy(body.pos))
-                    if (len(body.trail)) > trailDuration * trailUpdatesPerFrame * 60:
+                    if (len(body.trail)) > trailDuration * 60:
                         body.trail.popleft()
 
 
@@ -103,10 +106,8 @@ class GravitationalBody:
     def numbaFutureTrails(bodyData, futureTrailData):
 
         futureTrailPos = 0
-        max_deltaT = 1.0 / 60.0
-        min_deltaT = 1.0 / (60.0 * 20.0)
 
-        for update in range(futureTrailDuration * 60 * subUpdates):
+        for update in range(futureTrailUpdates):
 
             for i in range(np.shape(bodyData)[0]):
                 bodyData[i][5] = 0
@@ -143,6 +144,7 @@ class GravitationalBody:
             deltaT = 1 / (maxAccel_mag * 1)
             deltaT = max(min_deltaT, deltaT)
             deltaT = min(max_deltaT, deltaT)
+            deltaT = 1.0 / (60.0 * math.ceil((1.0 / 60.0) / deltaT)) # rounds deltaT to integer quotient of 1/60 e.g (1/60) / 10
             # deltaT = 1 / (fps * subUpdates)
 
             for i in range(np.shape(bodyData)[0]):
@@ -153,7 +155,7 @@ class GravitationalBody:
                 bodyData[i][0] += bodyData[i][2] * deltaT
                 bodyData[i][1] += bodyData[i][3] * deltaT
 
-            if update % (int(subUpdates / futureTrailUpdatesPerFrame)) == 0:
+            if update % timeStepsPerTrailPoint == 0:
                 for bodyPos in range(np.shape(bodyData)[0]):
                     futureTrailData[bodyPos][futureTrailPos] = np.array([bodyData[bodyPos][0], bodyData[bodyPos][1]])
                 futureTrailPos += 1
@@ -163,7 +165,7 @@ class GravitationalBody:
     def calculateFutureTrails(cls):
         # creating data to be used by numba
         bodyData = np.empty( (len(cls.bodies), 7) )  # format is [body][xpos, ypos, xvel, yvel, mass, accel_x, accel_y]
-        futureTrailData = np.empty( (len(cls.bodies), int(futureTrailDuration * futureTrailUpdatesPerFrame * 60), 2) )  # format is [body][trailPoint][xpos, ypos]
+        futureTrailData = np.empty( (len(cls.bodies), int(futureTrailUpdates / timeStepsPerTrailPoint), 2) )  # format is [body][trailPoint][xpos, ypos]
 
         for i in range(len(cls.bodies)):
             body = cls.bodies[i]

@@ -38,9 +38,9 @@ fps = gravitationalbody.fps = 60
 # Display variables
 
 gravitationalbody.trailDuration = 1
-gravitationalbody.futureTrailDuration = futureTrailDuration = 8
-gravitationalbody.trailUpdatesPerFrame = 5
-gravitationalbody.futureTrailUpdatesPerFrame = 2
+gravitationalbody.futureTrailUpdates = 3000
+gravitationalbody.futureTrailUpdatesPerFrame = 1
+gravitationalbody.timeStepsPerTrailPoint = 10
 
 cameraModeList = deque(["zero", "ship", "centerOfMass"])
 cameraMode = deque[0]
@@ -92,7 +92,7 @@ running = True
 # Running Loop
 
 while running:
-
+    start = time.time()
 
     # User input
 
@@ -107,9 +107,9 @@ while running:
                 cameraModeList.rotate(1)
                 cameraMode = cameraModeList[0]
             if event.key == pygame.K_UP:
-                zoomRate = 1.01
+                zoomRate = 1.03
             if event.key == pygame.K_DOWN:
-                zoomRate = 0.99
+                zoomRate = 0.97
             if event.key == pygame.K_SPACE:
                 shipVelBeforeManeuver = np.copy(ship.vel)
                 GravitationalBody.calculateFutureTrails()
@@ -188,8 +188,7 @@ while running:
 
     pygame.display.flip()  # flip() the display to put new visuals on screen
 
-
-
+    # print(0.016 / (time.time() - start))
     clock.tick(fps)  # update game clock
 
 pygame.quit()
