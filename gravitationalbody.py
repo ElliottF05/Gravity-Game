@@ -102,10 +102,15 @@ class GravitationalBody:
     @njit
     def numbaFutureTrails(bodyData, futureTrailData):
 
-        deltaT = 1 / (fps * subUpdates)
         futureTrailPos = 0
+        max_deltaT = 1.0 / 60.0
+        min_deltaT = 1.0 / (60.0 * 20.0)
 
         for update in range(futureTrailDuration * 60 * subUpdates):
+
+            for i in range(np.shape(bodyData)[0]):
+                bodyData[i][5] = 0
+                bodyData[i][6] = 0
 
             for i in range(np.shape(bodyData)[0]):
                 body1 = bodyData[i]
@@ -126,10 +131,23 @@ class GravitationalBody:
                     Fgrav_x = Fgrav_mag * r_hat_x
                     Fgrav_y = Fgrav_mag * r_hat_y
 
-                    body1[2] += Fgrav_x / m1 * deltaT
-                    body1[3] += Fgrav_y / m1 * deltaT
-                    body2[2] -= Fgrav_x / m2 * deltaT
-                    body2[3] -= Fgrav_y / m2 * deltaT
+                    # updating acceleration
+                    body1[5] += Fgrav_x / m1
+                    body1[6] += Fgrav_y / m1
+                    body2[5] -= Fgrav_x / m2
+                    body2[6] -= Fgrav_y / m2
+
+            maxAccel_mag = 0
+            for i in range(np.shape(bodyData)[0]):
+                maxAccel_mag = max(maxAccel_mag, math.sqrt(bodyData[i][5]**2 + bodyData[i][6]**2))
+            deltaT = 1 / (maxAccel_mag * 1)
+            deltaT = max(min_deltaT, deltaT)
+            deltaT = min(max_deltaT, deltaT)
+            # deltaT = 1 / (fps * subUpdates)
+
+            for i in range(np.shape(bodyData)[0]):
+                bodyData[i][2] += bodyData[i][5] * deltaT
+                bodyData[i][3] += bodyData[i][6] * deltaT
 
             for i in range(np.shape(bodyData)[0]):
                 bodyData[i][0] += bodyData[i][2] * deltaT
@@ -144,12 +162,12 @@ class GravitationalBody:
     @classmethod
     def calculateFutureTrails(cls):
         # creating data to be used by numba
-        bodyData = np.empty( (len(cls.bodies), 5) )  # format is [body][xpos, ypos, xvel, yvel, mass]
+        bodyData = np.empty( (len(cls.bodies), 7) )  # format is [body][xpos, ypos, xvel, yvel, mass, accel_x, accel_y]
         futureTrailData = np.empty( (len(cls.bodies), int(futureTrailDuration * futureTrailUpdatesPerFrame * 60), 2) )  # format is [body][trailPoint][xpos, ypos]
 
         for i in range(len(cls.bodies)):
             body = cls.bodies[i]
-            bodyData[i] = np.array([body.pos[0], body.pos[1], body.vel[0], body.vel[1], body.mass])
+            bodyData[i] = np.array([body.pos[0], body.pos[1], body.vel[0], body.vel[1], body.mass, 0, 0])
 
         cls.numbaFutureTrails(bodyData, futureTrailData)
 
