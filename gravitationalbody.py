@@ -9,8 +9,8 @@ from numba import njit
 # Physics Constants
 G = 100000
 
-MAX_DELTAT = 0.1 * 1.0 / (60.0)
-MIN_DELTAT = 1.0 / (60.0 * 500.0)
+MAX_DELTAT = 1 * 1.0 / (60.0)
+MIN_DELTAT = 1.0 / (60.0 * 50.0)
 
 DELTAT_ACCEL_DIVISOR = 5
 
@@ -21,8 +21,7 @@ CLOSEST_DISTANCE = 3
 
 trailDuration = 1
 futureTrailUpdates = 30000
-futureTrailUpdatesPerFrame = 1
-timeStepsPerTrailPoint = 100
+timeStepsPerTrailPoint = 50
 
 screenWidth = 0
 screenHeight = 0
@@ -251,7 +250,7 @@ class GravitationalBody:
 
     def render(self, surface):
         currentPos = self.pos
-        pygame.draw.circle(surface, self.color, toScreenCoords(currentPos), self.radius * zoom)
+        pygame.draw.circle(surface, self.color, toScreenCoords(currentPos), max(3, self.radius * zoom))
 
     def renderTrail(self, surface):
         pygame.draw.aalines(surface, "white", False, [toScreenCoords(pos) for pos in self.trail])
@@ -288,10 +287,10 @@ class GravitationalBody:
     @classmethod
     def getEnergy(cls):
         energy = 0
-        for i in range(3):
+        for i in range(len(cls.bodies)):
             body1 = cls.bodies[i]
             energy += 0.5 * body1.mass * (body1.vel[0]**2 + body1.vel[1]**2)
-            for j in range(i+1,3):
+            for j in range(i+1,len(cls.bodies)):
                 body2 = cls.bodies[j]
                 energy += -G * body1.mass * body2.mass / math.sqrt((body2.pos[0] - body1.pos[0])**2 + (body2.pos[1] - body1.pos[1])**2)
         return energy

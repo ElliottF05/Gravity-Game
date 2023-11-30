@@ -9,13 +9,14 @@ from collections import deque
 
 # Create player
 
-ship = GravitationalBody((0, 0),  (0, 5), 1, 5, "red")
+ship = GravitationalBody((20000, 0),  (0, 800), 0.01, 5, "red")
 
 
 # Create gravitational bodies
 
-GravitationalBody((-300, 0), (0, 60), 50, 20)
-GravitationalBody((300, 0), (0, -60), 50, 20)
+GravitationalBody((0, 0), (0, 0), 300000, 2000)
+GravitationalBody((0, 20000), (-1200, 0), 1000, 200)
+GravitationalBody((0, 21000), (-1500, 0), 20, 20)
 bodies = GravitationalBody.bodies
 
 
@@ -40,7 +41,7 @@ cameraModeList = deque(["zero", "ship", "centerOfMass"])
 cameraMode = deque[0]
 
 cameraPos = np.array([0,0])
-zoom = 1
+zoom = 0.01
 
 zoomRate = 1
 
