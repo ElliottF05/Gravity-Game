@@ -14,7 +14,7 @@ ship = GravitationalBody((20000, 0),  (0, 800), 0.01, 5, "red")
 
 # Create gravitational bodies
 
-GravitationalBody((0, 0), (0, 0), 300000, 2000)
+GravitationalBody((0, 0), (0, 0.01), 300000, 2000)
 GravitationalBody((0, 20000), (-1200, 0), 1000, 200)
 GravitationalBody((0, 21000), (-1500, 0), 20, 20)
 bodies = GravitationalBody.bodies
@@ -177,14 +177,15 @@ while running:
     screen.fill(space_color)  # filling screen with color to wipe away previous frame
 
     if gamePaused:
+        start2 = time.time()
         GravitationalBody.renderFutureTrails(screen)
-
+        # print("future trail time: ", 0.016 / (time.time() - start2))
     GravitationalBody.renderTrails(screen)
     GravitationalBody.renderBodies(screen)
 
     pygame.display.flip()  # flip() the display to put new visuals on screen
 
-    # print(0.016 / (time.time() - start))
+    # print("total frame time", 0.016 / (time.time() - start))
     clock.tick(fps)  # update game clock
 
 pygame.quit()

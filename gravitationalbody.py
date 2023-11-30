@@ -9,8 +9,9 @@ from numba import njit
 # Physics Constants
 G = 100000
 
-MAX_DELTAT = 1 * 1.0 / (60.0)
-MIN_DELTAT = 1.0 / (60.0 * 50.0)
+MAX_DELTAT_LIVE = 1 * 1.0 / (60.0)
+MAX_DELTAT_FUTURE = 1 * 1.0 / (60.0)
+MIN_DELTAT = 1.0 / (60.0 * 100.0)
 
 DELTAT_ACCEL_DIVISOR = 5
 
@@ -20,8 +21,8 @@ CLOSEST_DISTANCE = 3
 # Display Constants
 
 trailDuration = 1
-futureTrailUpdates = 30000
-timeStepsPerTrailPoint = 50
+futureTrailUpdates = 10000
+timeStepsPerTrailPoint = 20
 
 screenWidth = 0
 screenHeight = 0
@@ -116,12 +117,12 @@ class GravitationalBody:
                     body2[5] -= Fgrav_x / m2
                     body2[6] -= Fgrav_y / m2
 
-            maxAccel_mag = 0
+            max_accel_for_vel = 0
             for i in range(np.shape(bodyData)[0]):
-                maxAccel_mag = max(maxAccel_mag, math.sqrt(bodyData[i][5]**2 + bodyData[i][6]**2))
-            deltaT = 1 / (maxAccel_mag * DELTAT_ACCEL_DIVISOR)
+                max_accel_for_vel = max(max_accel_for_vel, math.sqrt(bodyData[i][5] ** 2 + bodyData[i][6] ** 2) / math.sqrt(bodyData[i][2] ** 2 + bodyData[i][3] ** 2))
+            deltaT = 1 / (max_accel_for_vel * DELTAT_ACCEL_DIVISOR)
             deltaT = max(MIN_DELTAT, deltaT)
-            deltaT = min(MAX_DELTAT, deltaT)
+            deltaT = min(MAX_DELTAT_LIVE, deltaT)
             deltaT = 1.0 / (60.0 * math.ceil((1.0 / 60.0) / deltaT)) # rounds deltaT to integer quotient of 1/60 e.g (1/60) / 10
 
             if use_mindeltat:
@@ -203,13 +204,13 @@ class GravitationalBody:
                     body2[5] -= Fgrav_x / m2
                     body2[6] -= Fgrav_y / m2
 
-            maxAccel_mag = 0
+            max_accel_for_vel = 0
             for i in range(np.shape(bodyData)[0]):
-                maxAccel_mag = max(maxAccel_mag, math.sqrt(bodyData[i][5]**2 + bodyData[i][6]**2))
-            deltaT = 1 / (maxAccel_mag * DELTAT_ACCEL_DIVISOR)
+                max_accel_for_vel = max(max_accel_for_vel, math.sqrt(bodyData[i][5]**2 + bodyData[i][6]**2) / math.sqrt(bodyData[i][2]**2 + bodyData[i][3]**2))
+            deltaT = 1 / (max_accel_for_vel * DELTAT_ACCEL_DIVISOR)
             deltaT = max(MIN_DELTAT, deltaT)
-            deltaT = min(MAX_DELTAT, deltaT)
-            deltaT = 1.0 / (60.0 * math.ceil((1.0 / 60.0) / deltaT)) # rounds deltaT to integer quotient of 1/60 e.g (1/60) / 10
+            deltaT = min(MAX_DELTAT_FUTURE, deltaT)
+            # deltaT = 1.0 / (60.0 * math.ceil((1.0 / 60.0) / deltaT)) # rounds deltaT to integer quotient of 1/60 e.g (1/60) / 10
 
             if use_mindeltat:
                 deltaT = MIN_DELTAT
