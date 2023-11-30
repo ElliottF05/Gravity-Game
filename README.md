@@ -11,7 +11,9 @@ For now, I want to finalize some physics changes, and potentially revisit this l
 
 That being said, here are my next steps:
 
-1. Potentially add max acceleration limit to avoid bodies shooting off to infinity on extremely close collisions
+1. Change time step system to work better with large, slow-moving systems.
+2. Add camera settings focusing on each body
+3. Add camera panning
 2. Revisit at a later date after learning best practices for sprites. I also still want to look up best practices for using moduels and classes as I feel my way is convoluted.
 
 ## Goals
