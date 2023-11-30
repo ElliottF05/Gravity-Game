@@ -38,7 +38,7 @@ fps = gravitationalbody.fps = 60
 # Display variables
 
 gravitationalbody.trailDuration = 1
-gravitationalbody.futureTrailUpdates = 3000
+gravitationalbody.futureTrailUpdates = 5000
 gravitationalbody.futureTrailUpdatesPerFrame = 1
 gravitationalbody.timeStepsPerTrailPoint = 10
 
@@ -115,9 +115,9 @@ while running:
                 GravitationalBody.calculateFutureTrails()
                 gamePaused = not gamePaused
             if event.key == pygame.K_PERIOD:
-                timeAcceleration += 1
+                timeAcceleration *= 2
             if event.key == pygame.K_COMMA:
-                timeAcceleration = max(1, timeAcceleration-1)
+                timeAcceleration = max(1, int(timeAcceleration/2))
 
             if gamePaused:
                 if event.key == pygame.K_w:
@@ -159,7 +159,7 @@ while running:
 
     if not gamePaused:
         for _ in range(timeAcceleration):
-            GravitationalBody.calculateMotion()
+            GravitationalBody.liveMotion()
 
 
     # Camera Updates
@@ -192,3 +192,4 @@ while running:
     clock.tick(fps)  # update game clock
 
 pygame.quit()
+# print(timeAcceleration)
