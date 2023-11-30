@@ -4,7 +4,7 @@ from gravitationalbody import GravitationalBody
 
 import pygame, time
 import numpy as np
-from collections import deque
+from numpy import float64
 
 
 # Create player
@@ -37,13 +37,18 @@ fps = 60
 
 # Display variables
 
-cameraModeList = deque(["zero", "ship", "centerOfMass"])
-cameraMode = deque[0]
+cameraMode = 1
+cameraUnlocked = False
+trackingOffset = False
 
 cameraPos = np.array([0,0])
+cameraOffset = np.array([0,0], dtype=float64)
+
 zoom = 0.01
 
 zoomRate = 1
+
+showFutureTrails = False
 
 
 # Colors
@@ -65,8 +70,6 @@ def maneuver_ship(prograde, radial):
         ship.vel += prograde * shipVelBeforeManeuver / np.linalg.norm(shipVelBeforeManeuver)
     elif radial != 0:
         ship.vel += radial * np.array([-shipVelBeforeManeuver[1], shipVelBeforeManeuver[0]]) / np.linalg.norm(shipVelBeforeManeuver)
-
-    GravitationalBody.calculateFutureTrails()
 
 
 # Prior to Loading Display
@@ -97,23 +100,29 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
-                cameraModeList.rotate(-1)
-                cameraMode = cameraModeList[0]
+                cameraMode = (cameraMode + 1) % len(bodies)
+                cameraOffset = np.array([0,0], dtype=float64)
+                cameraUnlocked = False
             if event.key == pygame.K_LEFT:
-                cameraModeList.rotate(1)
-                cameraMode = cameraModeList[0]
+                cameraMode = (cameraMode - 1) % len(bodies)
+                cameraOffset = np.array([0, 0], dtype=float64)
+                cameraUnlocked = False
             if event.key == pygame.K_UP:
                 zoomRate = 1.03
             if event.key == pygame.K_DOWN:
                 zoomRate = 0.97
             if event.key == pygame.K_SPACE:
                 shipVelBeforeManeuver = np.copy(ship.vel)
-                GravitationalBody.calculateFutureTrails()
                 gamePaused = not gamePaused
             if event.key == pygame.K_PERIOD:
                 timeAcceleration *= 2
             if event.key == pygame.K_COMMA:
                 timeAcceleration = max(1, int(timeAcceleration/2))
+            if event.key == pygame.K_LSHIFT:
+                showFutureTrails = not showFutureTrails
+            if event.key == pygame.K_RSHIFT:
+                cameraUnlocked = not cameraUnlocked
+                cameraOffset = 0
 
             if gamePaused:
                 if event.key == pygame.K_w:
@@ -145,6 +154,13 @@ while running:
                 if event.key == pygame.K_d:
                     radial_thrust = 0
 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            trackingOffset = True
+            pygame.mouse.get_rel()
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            trackingOffset = False
+
 
     # Maneuvers
 
@@ -157,26 +173,32 @@ while running:
         for _ in range(timeAcceleration):
             GravitationalBody.liveMotion()
 
+    if showFutureTrails:
+        GravitationalBody.calculateFutureTrails()
+
 
     # Camera Updates
 
     zoom *= zoomRate
 
-    if cameraMode == "centerOfMass":
-        cameraPos = GravitationalBody.getCenterOfMass()
-    if cameraMode == "ship":
-        cameraPos = ship.pos
-    if cameraMode == "zero":
-        cameraPos = np.array([0,0])
+    if not cameraUnlocked:
+        cameraPos = np.copy(bodies[cameraMode].pos) + cameraOffset
+    else:
+        cameraPos += cameraOffset
+        cameraOffset = 0
 
-    gravitationalbody.updateCamera(cameraPos, zoom)
+    if trackingOffset:
+        mouseMovement = pygame.mouse.get_rel()
+        cameraOffset += np.array([float(-mouseMovement[0]) / zoom, float(mouseMovement[1]) / zoom], dtype=float64)
+
+    gravitationalbody.updateCamera(cameraPos, zoom, cameraOffset)
 
 
     # Rendering all visuals
 
     screen.fill(space_color)  # filling screen with color to wipe away previous frame
 
-    if gamePaused:
+    if showFutureTrails:
         start2 = time.time()
         GravitationalBody.renderFutureTrails(screen)
         # print("future trail time: ", 0.016 / (time.time() - start2))

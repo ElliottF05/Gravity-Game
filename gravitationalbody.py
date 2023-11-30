@@ -31,6 +31,7 @@ screenHeight = 0
 # Camera values
 
 cameraPos = np.array([0,0])
+cameraOffset = np.array([0,0])
 zoom = 1
 
 
@@ -39,10 +40,11 @@ zoom = 1
 
 # USEFUL FUNCTIONS
 
-def updateCamera(newCameraPos, newZoom):
-    global cameraPos, zoom
+def updateCamera(newCameraPos, newZoom, newCameraOffset):
+    global cameraPos, zoom, cameraOffset
     cameraPos = newCameraPos
     zoom = newZoom
+    cameraOffset = newCameraOffset
 
 
 def toScreenCoords(coords): # converts coords with origin at center (physics based) to origin at top left
