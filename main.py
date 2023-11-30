@@ -9,19 +9,18 @@ from collections import deque
 
 # Create player
 
-ship = GravitationalBody((0, 0),  (0, 0.0001), 1, 5, "red")
+ship = GravitationalBody((0, 0),  (0, 5), 1, 5, "red")
 
 
 # Create gravitational bodies
 
-GravitationalBody((-200, 0), (0, 70), 50, 20)
-GravitationalBody((200, 0), (0, -70), 50, 20)
+GravitationalBody((-300, 0), (0, 60), 50, 20)
+GravitationalBody((300, 0), (0, -60), 50, 20)
 bodies = GravitationalBody.bodies
 
 
 # Physics variables
 
-subUpdates = gravitationalbody.subUpdates = 10
 gamePaused = False
 timeAcceleration = 1
 
@@ -32,15 +31,10 @@ shipVelBeforeManeuver = 0
 
 screenWidth = gravitationalbody.screenWidth = 1200
 screenHeight = gravitationalbody.screenHeight = 720
-fps = gravitationalbody.fps = 60
+fps = 60
 
 
 # Display variables
-
-gravitationalbody.trailDuration = 1
-gravitationalbody.futureTrailUpdates = 5000
-gravitationalbody.futureTrailUpdatesPerFrame = 1
-gravitationalbody.timeStepsPerTrailPoint = 10
 
 cameraModeList = deque(["zero", "ship", "centerOfMass"])
 cameraMode = deque[0]
@@ -76,6 +70,7 @@ def maneuver_ship(prograde, radial):
 
 # Prior to Loading Display
 
+gravitationalbody.TOTAL_ENERGY = GravitationalBody.getEnergy()
 
 
 # Pygame setup
@@ -192,4 +187,5 @@ while running:
     clock.tick(fps)  # update game clock
 
 pygame.quit()
+
 # print(timeAcceleration)

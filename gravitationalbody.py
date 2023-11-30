@@ -9,17 +9,27 @@ from numba import njit
 # Physics Constants
 G = 100000
 
-MAX_DELTAT = 1.0 / 60.0
-MIN_DELTAT = 1.0 / (60.0 * 100.0)
+MAX_DELTAT = 0.1 * 1.0 / (60.0)
+MIN_DELTAT = 1.0 / (60.0 * 500.0)
+
+DELTAT_ACCEL_DIVISOR = 5
+
+CLOSEST_DISTANCE = 3
+
 
 # Display Constants
+
+trailDuration = 1
+futureTrailUpdates = 30000
+futureTrailUpdatesPerFrame = 1
+timeStepsPerTrailPoint = 100
+
 screenWidth = 0
 screenHeight = 0
-trailDuration = 0
-futureTrailUpdates = 0
-timeStepsPerTrailPoint = 0
+
 
 # Camera values
+
 cameraPos = np.array([0,0])
 zoom = 1
 
@@ -73,6 +83,7 @@ class GravitationalBody:
         time_elapsed = 0
         while time_elapsed < 1.0 / 60.0:
 
+            use_mindeltat = False
             for i in range(np.shape(bodyData)[0]):
                 # setting accel to 0
                 bodyData[i][5] = 0
@@ -90,6 +101,9 @@ class GravitationalBody:
                     rx = body2x - body1x
                     ry = body2y - body1y
                     r_mag = math.sqrt(rx ** 2 + ry ** 2)
+                    if r_mag < CLOSEST_DISTANCE:
+                        use_mindeltat = True
+                        continue
                     r_hat_x = rx / r_mag
                     r_hat_y = ry / r_mag
 
@@ -106,10 +120,13 @@ class GravitationalBody:
             maxAccel_mag = 0
             for i in range(np.shape(bodyData)[0]):
                 maxAccel_mag = max(maxAccel_mag, math.sqrt(bodyData[i][5]**2 + bodyData[i][6]**2))
-            deltaT = 1 / (maxAccel_mag * 1)
+            deltaT = 1 / (maxAccel_mag * DELTAT_ACCEL_DIVISOR)
             deltaT = max(MIN_DELTAT, deltaT)
             deltaT = min(MAX_DELTAT, deltaT)
             deltaT = 1.0 / (60.0 * math.ceil((1.0 / 60.0) / deltaT)) # rounds deltaT to integer quotient of 1/60 e.g (1/60) / 10
+
+            if use_mindeltat:
+                deltaT = MIN_DELTAT
 
             time_elapsed += deltaT
 
@@ -122,6 +139,7 @@ class GravitationalBody:
                 # position update using vel
                 bodyData[i][0] += bodyData[i][2] * deltaT
                 bodyData[i][1] += bodyData[i][3] * deltaT
+
 
     @classmethod
     def liveMotion(cls):
@@ -152,6 +170,7 @@ class GravitationalBody:
 
         for update in range(futureTrailUpdates):
 
+            use_mindeltat = False
             for i in range(np.shape(bodyData)[0]):
                 # setting accel to 0
                 bodyData[i][5] = 0
@@ -169,6 +188,9 @@ class GravitationalBody:
                     rx = body2x - body1x
                     ry = body2y - body1y
                     r_mag = math.sqrt(rx ** 2 + ry ** 2)
+                    if r_mag < CLOSEST_DISTANCE:
+                        use_mindeltat = True
+                        continue
                     r_hat_x = rx / r_mag
                     r_hat_y = ry / r_mag
 
@@ -185,11 +207,13 @@ class GravitationalBody:
             maxAccel_mag = 0
             for i in range(np.shape(bodyData)[0]):
                 maxAccel_mag = max(maxAccel_mag, math.sqrt(bodyData[i][5]**2 + bodyData[i][6]**2))
-            deltaT = 1 / (maxAccel_mag * 1)
+            deltaT = 1 / (maxAccel_mag * DELTAT_ACCEL_DIVISOR)
             deltaT = max(MIN_DELTAT, deltaT)
             deltaT = min(MAX_DELTAT, deltaT)
             deltaT = 1.0 / (60.0 * math.ceil((1.0 / 60.0) / deltaT)) # rounds deltaT to integer quotient of 1/60 e.g (1/60) / 10
-            # deltaT = 1 / (fps * subUpdates)
+
+            if use_mindeltat:
+                deltaT = MIN_DELTAT
 
             for i in range(np.shape(bodyData)[0]):
                 # velocity update using accel
@@ -258,3 +282,16 @@ class GravitationalBody:
             cumulativePos += body.pos * body.mass
             totalMass += body.mass
         return cumulativePos / totalMass
+
+
+
+    @classmethod
+    def getEnergy(cls):
+        energy = 0
+        for i in range(3):
+            body1 = cls.bodies[i]
+            energy += 0.5 * body1.mass * (body1.vel[0]**2 + body1.vel[1]**2)
+            for j in range(i+1,3):
+                body2 = cls.bodies[j]
+                energy += -G * body1.mass * body2.mass / math.sqrt((body2.pos[0] - body1.pos[0])**2 + (body2.pos[1] - body1.pos[1])**2)
+        return energy
