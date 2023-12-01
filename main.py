@@ -67,10 +67,19 @@ radial_increase_rate = 0.01
 # User Input Functions
 
 def maneuver_ship(prograde, radial):
+    if not cameraBodyFocus:
+        prograde_unit = shipVelBeforeManeuver / np.linalg.norm(shipVelBeforeManeuver)
+        radial_unit =  np.array([-shipVelBeforeManeuver[1], shipVelBeforeManeuver[0]]) / np.linalg.norm(shipVelBeforeManeuver)
+    else:
+        prograde_unit = shipVelBeforeManeuver - bodies[cameraMode].vel
+        prograde_unit /= np.linalg.norm(prograde_unit)
+        radial_unit = bodies[cameraMode].pos - ship.pos
+        radial_unit /= np.linalg.norm(radial_unit)
+
     if prograde != 0:
-        ship.vel += prograde * shipVelBeforeManeuver / np.linalg.norm(shipVelBeforeManeuver)
+        ship.vel += prograde * prograde_unit
     elif radial != 0:
-        ship.vel += radial * np.array([-shipVelBeforeManeuver[1], shipVelBeforeManeuver[0]]) / np.linalg.norm(shipVelBeforeManeuver)
+        ship.vel += radial * radial_unit
 
 
 # Prior to Loading Display
@@ -220,4 +229,4 @@ while running:
 
 pygame.quit()
 
-# print(timeAcceleration)
+print(timeAcceleration)
