@@ -40,6 +40,7 @@ fps = 60
 cameraMode = 1
 cameraUnlocked = False
 trackingOffset = False
+cameraBodyFocus = False
 
 cameraPos = np.array([0,0])
 cameraOffset = np.array([0,0], dtype=float64)
@@ -75,6 +76,11 @@ def maneuver_ship(prograde, radial):
 # Prior to Loading Display
 
 gravitationalbody.TOTAL_ENERGY = GravitationalBody.getEnergy()
+
+# cameraBodyFocus = True
+# gravitationalbody.updateCamera(cameraPos, zoom, cameraMode, cameraBodyFocus)
+# GravitationalBody.calculateFutureTrails()
+# array = np.array("hello", 2, 3)
 
 
 # Pygame setup
@@ -123,6 +129,8 @@ while running:
             if event.key == pygame.K_RSHIFT:
                 cameraUnlocked = not cameraUnlocked
                 cameraOffset = 0
+            if event.key == pygame.K_SLASH:
+                cameraBodyFocus = not cameraBodyFocus
 
             if gamePaused:
                 if event.key == pygame.K_w:
@@ -191,7 +199,7 @@ while running:
         mouseMovement = pygame.mouse.get_rel()
         cameraOffset += np.array([float(-mouseMovement[0]) / zoom, float(mouseMovement[1]) / zoom], dtype=float64)
 
-    gravitationalbody.updateCamera(cameraPos, zoom, cameraOffset)
+    gravitationalbody.updateCamera(cameraPos, zoom, cameraMode, cameraBodyFocus)
 
 
     # Rendering all visuals
@@ -207,7 +215,7 @@ while running:
 
     pygame.display.flip()  # flip() the display to put new visuals on screen
 
-    # print("total frame time", 0.016 / (time.time() - start))
+    print("total frame time", 0.016 / (time.time() - start))
     clock.tick(fps)  # update game clock
 
 pygame.quit()

@@ -11,8 +11,7 @@ For now, I want to finalize some physics changes, and potentially revisit this l
 
 That being said, here are my next steps:
 
-1. Add camera settings focusing on each body
-3. Add camera panning
+1. Make prograde and retrogade relative when body focus mode is on
 2. Revisit at a later date after learning best practices for sprites. I also still want to look up best practices for using moduels and classes as I feel my way is convoluted.
 
 ## Goals

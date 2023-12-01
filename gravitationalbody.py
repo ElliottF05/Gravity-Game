@@ -22,7 +22,7 @@ CLOSEST_DISTANCE = 3
 
 trailDuration = 1
 futureTrailUpdates = 10000
-timeStepsPerTrailPoint = 20
+timeStepsPerTrailPoint = 10
 
 screenWidth = 0
 screenHeight = 0
@@ -31,7 +31,8 @@ screenHeight = 0
 # Camera values
 
 cameraPos = np.array([0,0])
-cameraOffset = np.array([0,0])
+cameraMode = 0
+cameraBodyFocus = False
 zoom = 1
 
 
@@ -40,11 +41,12 @@ zoom = 1
 
 # USEFUL FUNCTIONS
 
-def updateCamera(newCameraPos, newZoom, newCameraOffset):
-    global cameraPos, zoom, cameraOffset
+def updateCamera(newCameraPos, newZoom, newCameraMode, newCameraBodyFocus):
+    global cameraPos, zoom, cameraMode, cameraBodyFocus
     cameraPos = newCameraPos
     zoom = newZoom
-    cameraOffset = newCameraOffset
+    cameraMode = newCameraMode
+    cameraBodyFocus = newCameraBodyFocus
 
 
 def toScreenCoords(coords): # converts coords with origin at center (physics based) to origin at top left
@@ -166,9 +168,14 @@ class GravitationalBody:
 
     @staticmethod
     @njit
-    def numbaFutureTrails(bodyData, futureTrailData):
+    def numbaFutureTrails(bodyData, futureTrailData, cameraBodyFocus, cameraMode):
 
         futureTrailPos = 0
+        focused_body_start_x = 0
+        focused_body_start_y = 0
+        if cameraBodyFocus:
+            focused_body_start_x = bodyData[cameraMode][0]
+            focused_body_start_y = bodyData[cameraMode][1]
 
         for update in range(futureTrailUpdates):
 
@@ -228,8 +235,13 @@ class GravitationalBody:
                 bodyData[i][1] += bodyData[i][3] * deltaT
 
             if update % timeStepsPerTrailPoint == 0:
+                focused_body_x = 0
+                focused_body_y = 0
+                if cameraBodyFocus:
+                    focused_body_x = bodyData[cameraMode][0]
+                    focused_body_y = bodyData[cameraMode][1]
                 for bodyPos in range(np.shape(bodyData)[0]):
-                    futureTrailData[bodyPos][futureTrailPos] = np.array([bodyData[bodyPos][0], bodyData[bodyPos][1]])
+                    futureTrailData[bodyPos][futureTrailPos] = np.array([bodyData[bodyPos][0] - focused_body_x + focused_body_start_x, bodyData[bodyPos][1] - focused_body_y + focused_body_start_y])
                 futureTrailPos += 1
 
 
@@ -243,7 +255,7 @@ class GravitationalBody:
             body = cls.bodies[i]
             bodyData[i] = np.array([body.pos[0], body.pos[1], body.vel[0], body.vel[1], body.mass, 0, 0])
 
-        cls.numbaFutureTrails(bodyData, futureTrailData)
+        cls.numbaFutureTrails(bodyData, futureTrailData, cameraBodyFocus, cameraMode)
 
         for i in range(len(cls.bodies)):
             cls.bodies[i].futureTrail = deque(futureTrailData[i])
