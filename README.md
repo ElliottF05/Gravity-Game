@@ -12,6 +12,9 @@ Control a spaceship (red) to get to wherever you want to be! While originally in
 [A] [D] - radial in/out burns (hold)  
 [Q] [E] - increase/decrease rate of maneuvers (press)
 
+*Maneuvers only allowed when paused*
+
+
 ### Camera Controls
 [UP] [DOWN] - zoom in/out   
 [LEFT] [RIGHT] - change which body camera is focused on  
@@ -20,7 +23,11 @@ Control a spaceship (red) to get to wherever you want to be! While originally in
 ### Display Controls
 [LSHIFT] - show future paths of all object  
 [/] - enable/disable paths being drawn relative to the body the camera is focused on (**USE THIS FOR MANUEVERS**)  
-[SPACE] - pause simulation
+
+### Time Manipulation
+[SPACE] - pause simulation  
+[.] [,] - time acceleration / deceleration
+
 
 ## Current Status: In progress
 At minimum viable product

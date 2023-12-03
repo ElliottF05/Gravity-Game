@@ -59,9 +59,9 @@ space_color = (20, 20, 23)
 
 # User Input Variables
 prograde_thrust = 0
-prograde_increase_rate = 0.01
+prograde_increase_rate = 0.4
 radial_thrust = 0
-radial_increase_rate = 0.01
+radial_increase_rate = 0.4
 
 
 # User Input Functions
