@@ -86,11 +86,6 @@ def maneuver_ship(prograde, radial):
 
 gravitationalbody.TOTAL_ENERGY = GravitationalBody.getEnergy()
 
-# cameraBodyFocus = True
-# gravitationalbody.updateCamera(cameraPos, zoom, cameraMode, cameraBodyFocus)
-# GravitationalBody.calculateFutureTrails()
-# array = np.array("hello", 2, 3)
-
 
 # Pygame setup
 
@@ -224,7 +219,7 @@ while running:
 
     pygame.display.flip()  # flip() the display to put new visuals on screen
 
-    print("total frame time", 0.016 / (time.time() - start))
+    # print("total frame time", 0.016 / (time.time() - start))
     clock.tick(fps)  # update game clock
 
 pygame.quit()
