@@ -1,5 +1,26 @@
 # Gravity-Game
-Control a spaceship to get to where you want to be! This is my first game, made using pygame and to improve my skills.
+Control a spaceship (red) to get to wherever you want to be! While originally intended to be a game, this is more of an interactive physics demo.
+
+## Usage
+1. Run main.py in a **conda environment**
+2. If desired, set initial body conditions at the top of main.py
+
+## Controls
+
+### Ship Maneuvers:
+[W] [S] - prograde/retrograde burns (hold)  
+[A] [D] - radial in/out burns (hold)  
+[Q] [E] - increase/decrease rate of maneuvers (press)
+
+### Camera Controls
+[UP] [DOWN] - zoom in/out   
+[LEFT] [RIGHT] - change which body camera is focused on  
+[DRAG/PAN WITH MOUSE] - pan camera around  
+
+### Display Controls
+[LSHIFT] - show future paths of all object  
+[/] - enable/disable paths being drawn relative to the body the camera is focused on (**USE THIS FOR MANUEVERS**)  
+[SPACE] - pause simulation
 
 ## Current Status: In progress
 At minimum viable product
@@ -11,8 +32,7 @@ For now, I want to finalize some physics changes, and potentially revisit this l
 
 That being said, here are my next steps:
 
-1. Make prograde and retrogade relative when body focus mode is on
-2. Revisit at a later date after learning best practices for sprites. I also still want to look up best practices for using moduels and classes as I feel my way is convoluted.
+1. Revisit at a later date after learning best practices for sprites. I also still want to look up best practices for using moduels and classes as I feel my way is convoluted.
 
 ## Goals
 - Use OOP
@@ -25,4 +45,4 @@ That being said, here are my next steps:
 
 
 ## Potential Changes
-- Look up best practices for sharing variables across modules and implement this!!!
+- Look up best practices for sharing variables across modules and implement this
