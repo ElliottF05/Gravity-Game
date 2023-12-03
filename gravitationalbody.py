@@ -219,6 +219,7 @@ class GravitationalBody:
             deltaT = 1 / (max_accel_for_vel * DELTAT_ACCEL_DIVISOR)
             deltaT = max(MIN_DELTAT, deltaT)
             deltaT = min(MAX_DELTAT_FUTURE, deltaT)
+            deltaT = 1.0 / (60.0 * math.ceil((1.0 / 60.0) / deltaT))  # rounds deltaT to integer quotient of 1/60 e.g (1/60) / 10
 
             if use_mindeltat:
                 deltaT = MIN_DELTAT

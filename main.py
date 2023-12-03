@@ -97,7 +97,6 @@ clock = pygame.time.Clock()
 running = True
 
 
-
 # Running Loop
 
 while running:
